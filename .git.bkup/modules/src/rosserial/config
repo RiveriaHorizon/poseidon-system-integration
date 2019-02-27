@@ -1,0 +1,9 @@
+[core]
+	bare = false
+	repositoryformatversion = 0
+	filemode = true
+	logallrefupdates = true
+	worktree = ../../../../src/rosserial/
+[remote "origin"]
+	url = https://github.com/ros-drivers/rosserial.git
+	fetch = +refs/heads/*:refs/remotes/origin/*

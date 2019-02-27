@@ -1,0 +1,50 @@
+image: ros:melodic-ros-core
+
+cache:
+  paths:
+    - ccache/
+
+variables:
+  ROS_PACKAGES_TO_INSTALL: "rosserial"
+
+before_script:
+  - git clone https://gitlab.com/VictorLamoine/ros_gitlab_ci.git
+  - source ros_gitlab_ci/gitlab-ci.bash >/dev/null
+
+catkin_make:
+  stage: build
+  script:
+    - catkin_make
+
+catkin tools:
+  stage: build
+  script:
+    - catkin build --summarize --no-status --force-color
+
+catkin_lint:
+  stage: build
+  image: ros:melodic-ros-core
+  before_script:
+    - apt update >/dev/null 2>&1
+    - apt install -y python-catkin-lint >/dev/null 2>&1
+  allow_failure: true
+  script:
+    - catkin_lint -W3 .
+
+code_quality:
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  script:
+    - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
+    - docker run
+        --env SOURCE_CODE="$PWD"
+        --volume "$PWD":/code
+        --volume /var/run/docker.sock:/var/run/docker.sock
+        "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
+  artifacts:
+    reports:
+      codequality: [gl-code-quality-report.json]

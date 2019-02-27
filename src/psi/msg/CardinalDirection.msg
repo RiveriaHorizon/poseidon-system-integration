@@ -1,0 +1,3 @@
+Header header
+
+string cardinal_direction

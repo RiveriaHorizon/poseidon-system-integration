@@ -1,0 +1,12 @@
+[core]
+	bare = false
+	repositoryformatversion = 0
+	filemode = true
+	logallrefupdates = true
+	worktree = ../../../../src/image_pipeline/
+[remote "origin"]
+	url = https://github.com/ros-perception/image_pipeline.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "indigo"]
+	remote = origin
+	merge = refs/heads/indigo

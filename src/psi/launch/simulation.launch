@@ -1,0 +1,32 @@
+<launch>
+    <arg name="model" default="$(find psi)/urdf/poseidon.urdf.xacro"/>
+    <arg name="rvizconfig" default="$(find psi)/rviz/urdf.rviz" />
+
+    <include file="$(find psi)/launch/gazebo.launch">
+        <arg name="model" value="$(arg model)" />
+    </include>
+
+    <rosparam command="load" file="$(find psi)/config/joints.yaml" ns="psi/joint_state_controller" />
+    <rosparam command="load" file="$(find psi)/config/diffdrive.yaml" ns="psi/diff_drive_controller" />
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <node name="poseidon_controller_spawner" pkg="controller_manager" type="spawner" args="psi/joint_state_controller
+          psi/diff_drive_controller
+          --shutdown-timeout 3"/>
+
+    <group ns="psi">
+        <node pkg="psi" name="drive_manager" type="drive_manager.py"/>
+        <node pkg="psi" name="navigation" type="navigation.py"/>
+        <node pkg="psi" name="arduino_sim" type="arduino_sim.py"/>
+        <node pkg="psi" name="arm_manager" type="arm_manager.py"/>
+        <node pkg="psi" name="battery_manager" type="battery_manager.py"/>
+        <node pkg="psi" name="aqueous_manager" type="aqueous_manager.py"/>
+        <node pkg="psi" name="core" type="core.py"/>
+    </group>
+
+    <!-- GUI Control -->
+    <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
+        <param name="default_topic" value="/psi/diff_drive_controller/cmd_vel"/>
+    </node>
+</launch>

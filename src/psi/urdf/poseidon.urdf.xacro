@@ -1,0 +1,567 @@
+<?xml version="1.0"?>
+<robot name="poseidon" 
+    xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Material description for the robot -->
+    <material name="black">
+        <color rgba="0.0 0.0 0.0 1.0"/>
+    </material>
+
+    <material name="blue">
+        <color rgba="0.0 0.0 0.8 1.0"/>
+    </material>
+
+    <material name="red">
+        <color rgba="0.949, 0.007, 0.031, 1.0"/>
+    </material>
+
+    <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0"/>
+    </material>
+
+    <!-- Description for the robot base -->
+    <xacro:property name="base_width" value="0.75" />
+    <xacro:property name="base_depth" value="0.75" />
+    <xacro:property name="base_height" value="1.2" />
+    <xacro:property name="base_width_sqrd" value="${base_width*base_width}" />
+    <xacro:property name="base_depth_sqrd" value="${base_depth*base_depth}" />
+    <xacro:property name="base_height_sqrd" value="${base_height*base_height}" />
+
+    <!-- Description for sensors -->
+    <xacro:property name="camera_length" value="0.05" />
+    <xacro:property name="imu_length" value="0.05" />
+    <xacro:property name="sonar_sensor_length" value="0.05" />
+
+    <!-- Description for the arm -->
+    <xacro:property name="arm_generic_width" value="0.05" />
+    <xacro:property name="arm_generic_depth" value="0.25" />
+    <xacro:property name="arm_generic_height" value="0.05" />
+    <xacro:property name="arm_end_width" value="0.05" />
+    <xacro:property name="arm_end_depth" value="0.1" />
+    <xacro:property name="arm_end_height" value="0.05" />
+    <xacro:property name="arm_generic_width_sqrd" value="${arm_generic_width*arm_generic_width}" />
+    <xacro:property name="arm_generic_depth_sqrd" value="${arm_generic_depth*arm_generic_depth}" />
+    <xacro:property name="arm_generic_height_sqrd" value="${arm_generic_height*arm_generic_height}" />
+    <xacro:property name="arm_end_width_sqrd" value="${arm_end_width*arm_end_width}" />
+    <xacro:property name="arm_end_depth_sqrd" value="${arm_end_depth*arm_end_depth}" />
+    <xacro:property name="arm_end_height_sqrd" value="${arm_end_height*arm_end_height}" />
+    <xacro:property name="arm_generic_mass" value="0.1" />
+    <xacro:property name="arm_end_mass" value="0.05" />
+
+    <!-- Description for the wheel -->
+    <xacro:property name="pi" value="3.1415" />
+    <xacro:property name="wheel_radius" value="0.15" />
+    <xacro:property name="wheel_length" value="0.1" />
+    <xacro:property name="wheel_radius_sqrd" value="${wheel_radius*wheel_radius}" />
+    <xacro:property name="wheel_length_sqrd" value="${wheel_length*wheel_length}" />
+    <xacro:property name="wheel_front" value="0.2" />
+    <xacro:property name="wheel_back" value="-0.2" />
+    <xacro:property name="wheel_right" value="0.2" />
+    <xacro:property name="wheel_left" value="-0.2" />
+    <xacro:property name="wheel_mass" value="7" />
+
+    <!-- Inertial macro description -->
+    <xacro:macro name="cuboid_inertial" params="mass depth_sqrd width_sqrd height_sqrd">
+        <inertial>
+            <mass value="${mass}"/>
+            <inertia ixx="${0.0833*mass*(width_sqrd+height_sqrd)}" ixy="0.0" ixz="0.0" iyy="${0.0833*mass*(depth_sqrd+height_sqrd)}" iyz="0.0" izz="${0.0833*mass*(width_sqrd+depth_sqrd)}" />
+        </inertial>
+    </xacro:macro>
+    <xacro:macro name="cylinder_inertial" params="mass radius_sqrd length_sqrd">
+        <inertial>
+            <mass value="${mass}"/>
+            <inertia ixx="${0.0833*mass*(3*radius_sqrd+length_sqrd)}" ixy="0.0" ixz="0.0" iyy="${0.0833*mass*(3*radius_sqrd+length_sqrd)}" iyz="0.0" izz="${0.5*mass*radius_sqrd}" />
+        </inertial>
+    </xacro:macro>
+    <xacro:macro name="sphere_inertial" params="mass radius_sqrd">
+        <inertial>
+            <mass value="${mass}"/>
+            <inertia ixx="${0.4*mass*radius_sqrd}" ixy="0.0" ixz="0.0" iyy="${0.4*mass*radius_sqrd}" iyz="0.0" izz="${0.4*mass*radius_sqrd}" />
+        </inertial>
+    </xacro:macro>
+
+    <!-- Camera sensor macro description -->
+    <xacro:macro name="camera_sensor" params="suffix origin_depth origin_width origin_height axis_x axis_y axis_z roll pitch yaw">
+        <link name="camera_${suffix}_link">
+            <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <mass value="1e-5"/>
+                <inertia ixx="1e-6" ixy="0.0" ixz="0.0" iyy="1e-6" iyz="0.0" izz="1e-6"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${camera_length} ${camera_length} ${camera_length}"/>
+                </geometry>
+                <material name="red"/>
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${camera_length} ${camera_length} ${camera_length}"/>
+                </geometry>
+            </collision>
+        </link>
+
+        <joint name="camera_${suffix}_joint" type="fixed">
+            <origin xyz="${origin_depth} ${origin_width} ${origin_height}" rpy="${roll} ${pitch} ${yaw}"/>
+            <parent link="base_link"/>
+            <child link="camera_${suffix}_link"/>
+            <axis xyz="${axis_x} ${axis_y} ${axis_z}"/>
+        </joint>
+    </xacro:macro>
+
+    <!-- Sonar sensor macro description -->
+    <xacro:macro name="sonar_base_link" params="suffix origin_depth origin_width origin_height axis_x axis_y axis_z roll pitch yaw">
+        <link name="sonar_base_${suffix}_link">
+            <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <mass value="1e-5"/>
+                <inertia ixx="1e-6" ixy="0.0" ixz="0.0" iyy="1e-6" iyz="0.0" izz="1e-6"/>
+            </inertial>
+            <visual>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${sonar_sensor_length} ${sonar_sensor_length} ${sonar_sensor_length}"/>
+                </geometry>
+                <material name="red"/>
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <geometry>
+                    <box size="${sonar_sensor_length} ${sonar_sensor_length} ${sonar_sensor_length}"/>
+                </geometry>
+            </collision>
+        </link>
+
+        <joint name="sonar_base_${suffix}_joint" type="fixed">
+            <origin xyz="${origin_depth} ${origin_width} ${origin_height}" rpy="${roll} ${pitch} ${yaw}"/>
+            <parent link="base_link"/>
+            <child link="sonar_base_${suffix}_link"/>
+            <axis xyz="${axis_x} ${axis_y} ${axis_z}"/>
+        </joint>
+    </xacro:macro>
+
+    <!-- Hector sonar sensor -->
+    <xacro:macro name="sonar_sensor" params="name parent *origin ros_topic update_rate min_range max_range field_of_view ray_count">
+        <joint name="${name}_joint" type="fixed">
+            <xacro:insert_block name="origin" />
+            <parent link="${parent}"/>
+            <child link="${name}_link"/>
+        </joint>
+
+        <link name="${name}_link">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <inertia ixx="0.000000017" ixy="0" ixz="0" iyy="0.000000017" iyz="0" izz="0.000000017" />
+            </inertial>
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <!--<box size="0.01 0.01 0.01" /> -->
+                    <mesh filename="package://hector_sensors_description/meshes/sonar_sensor/max_sonar_ez4.dae"/>
+                </geometry>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <geometry>
+                    <box size="0.01 0.01 0.01" />
+                </geometry>
+            </collision>
+        </link>
+
+        <gazebo reference="${name}_link">
+            <sensor type="ray" name="${name}">
+                <always_on>true</always_on>
+                <update_rate>${update_rate}</update_rate>
+                <pose>0 0 0 0 0 0</pose>
+                <visualize>false</visualize>
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>${ray_count}</samples>
+                            <resolution>1</resolution>
+                            <min_angle>-${field_of_view/2}</min_angle>
+                            <max_angle> ${field_of_view/2}</max_angle>
+                        </horizontal>
+                        <vertical>
+                            <samples>${ray_count}</samples>
+                            <resolution>1</resolution>
+                            <min_angle>-${field_of_view/2}</min_angle>
+                            <max_angle> ${field_of_view/2}</max_angle>
+                        </vertical>
+                    </scan>
+                    <range>
+                        <min>${min_range}</min>
+                        <max>${max_range}</max>
+                        <resolution>0.01</resolution>
+                    </range>
+                </ray>
+
+                <plugin name="gazebo_ros_${name}_controller" filename="libhector_gazebo_ros_sonar.so">
+                    <gaussianNoise>0.005</gaussianNoise>
+                    <topicName>${ros_topic}</topicName>
+                    <frameId>${name}_link</frameId>
+                </plugin>
+            </sensor>
+        </gazebo>
+    </xacro:macro>
+
+    <!-- Robot wheel macro description -->
+    <xacro:macro name="wheel_motor" params="prefix end side">
+        <link name="${prefix}_wheel_motor">
+            <xacro:cylinder_inertial mass="${wheel_mass}" radius_sqrd="${wheel_radius_sqrd}" length_sqrd="${wheel_length_sqrd}"/>
+            <visual>
+                <geometry>
+                    <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+                </geometry>
+                <material name="black"/>
+                <origin xyz="0 0 0" rpy="0.0 ${pi/2} 0.0"/>
+            </visual>
+            <collision>
+                <geometry>
+                    <cylinder length="${wheel_length}" radius="${wheel_radius}"/>
+                </geometry>
+                <origin xyz="0 0 0" rpy="0.0 ${pi/2} 0.0"/>
+            </collision>
+        </link>
+
+        <joint name="${prefix}_wheel_motor_joint" type="continuous">
+            <parent link="base_link"/>
+            <child link="${prefix}_wheel_motor"/>
+            <origin xyz="${side} ${end} -0.6"/>
+            <axis xyz="-1.0 0.0 0.0"/>
+        </joint>
+
+        <transmission name="${prefix}_wheel_motor_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <actuator name="${prefix}_wheel_actuator">
+                <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+            <joint name="${prefix}_wheel_motor_joint">
+                <hardwareInterface>VelocityJointInterface</hardwareInterface>
+            </joint>
+        </transmission>
+
+        <gazebo reference="${prefix}_wheel_motor">
+            <mu1 value="200"/>
+            <mu2 value="100"/>
+            <kp value="10000000.0"/>
+            <kd value="1.0"/>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:macro name="wheel_caster" params="prefix end side">
+        <link name="${prefix}_wheel_caster">
+            <xacro:sphere_inertial mass="${wheel_mass}" radius_sqrd="${wheel_radius_sqrd}"/>
+            <visual>
+                <origin xyz="0 0 0" rpy="0.0 ${pi/2} 0.0"/>
+                <geometry>
+                    <sphere radius="${wheel_radius}"/>
+                </geometry>
+                <material name="black"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0.0 ${pi/2} 0.0"/>
+                <geometry>
+                    <sphere radius="${wheel_radius}"/>
+                </geometry>
+            </collision>
+        </link>
+
+        <joint name="${prefix}_wheel_caster_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="${prefix}_wheel_caster"/>
+            <origin xyz="${side} ${end} -0.6"/>
+        </joint>
+
+        <gazebo reference="${prefix}_wheel_caster">
+            <mu1 value="0.0"/>
+            <mu2 value="0.0"/>
+            <kp value="10000000.0"/>
+            <kd value="1.0"/>
+            <material>Gazebo/White</material>
+        </gazebo>
+    </xacro:macro>
+
+    <!-- Link description for the robot base -->
+    <link name="base_link">
+        <inertial>
+            <mass value="400"/>
+            <inertia ixx="66.75" ixy="0.0" ixz="0.0" iyy="37.5" iyz="0.0" izz="66.75"/>
+        </inertial>
+        <visual>
+            <geometry>
+                <box size="${base_depth} ${base_width} ${base_height}"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${base_depth} ${base_width} ${base_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <!-- Sensor description attached to the robot base -->
+    <!-- Camera Sensors -->
+    <xacro:camera_sensor suffix="centre" origin_depth="0.0" origin_width="${base_width/2}" origin_height="0.2" axis_x="0.0" axis_y="1.0" axis_z="0.0" roll="0.0" pitch="0.0" yaw="0.0" />
+    <xacro:camera_sensor suffix="qr" origin_depth="0.0" origin_width="${base_width/2}" origin_height="${-base_height/2+0.1}" axis_x="0.0" axis_y="1.0" axis_z="0.0" roll="0.0" pitch="0.0" yaw="${pi/2}" />
+
+    <!-- Range sensors -->
+    <xacro:sonar_base_link suffix="left_outer" origin_depth="${-base_depth/2+0.05}" origin_width="${base_width/2}" origin_height="-0.2" axis_x="0.0" axis_y="1.0" axis_z="0.0" roll="0.0" pitch="0.0" yaw="0.0" />
+    <xacro:sonar_sensor name="sonar_left_outer_sensor" parent="sonar_base_left_outer_link" ros_topic="/psi/sensors/range/left_outer" update_rate="1" min_range="" max_range="" field_of_view="0.0174533" ray_count="1">
+        <origin xyz="0 0.025 0" rpy="0 0 0"/>
+    </xacro:sonar_sensor>
+    <xacro:sonar_base_link suffix="left_inner" origin_depth="${-base_depth/4+0.05}" origin_width="${base_width/2}" origin_height="-0.2" axis_x="0.0" axis_y="1.0" axis_z="0.0" roll="0.0" pitch="0.0" yaw="0.0" />
+    <xacro:sonar_sensor name="sonar_left_inner_sensor" parent="sonar_base_left_inner_link" ros_topic="/psi/sensors/range/left_inner" update_rate="1" min_range="" max_range="" field_of_view="0.0174533" ray_count="1">
+        <origin xyz="0 0.025 0" rpy="0 0 0"/>
+    </xacro:sonar_sensor>
+    <xacro:sonar_base_link suffix="right_outer" origin_depth="${base_depth/2-0.05}" origin_width="${base_width/2}" origin_height="-0.2" axis_x="0.0" axis_y="1.0" axis_z="0.0" roll="0.0" pitch="0.0" yaw="0.0" />
+    <xacro:sonar_sensor name="sonar_right_outer_sensor" parent="sonar_base_right_outer_link" ros_topic="/psi/sensors/range/right_outer" update_rate="1" min_range="" max_range="" field_of_view="0.0174533" ray_count="1">
+        <origin xyz="0 0.025 0" rpy="0 0 0"/>
+    </xacro:sonar_sensor>
+    <xacro:sonar_base_link suffix="right_inner" origin_depth="${base_depth/4-0.05}" origin_width="${base_width/2}" origin_height="-0.2" axis_x="0.0" axis_y="1.0" axis_z="0.0" roll="0.0" pitch="0.0" yaw="0.0" />
+    <xacro:sonar_sensor name="sonar_right_inner_sensor" parent="sonar_base_right_inner_link" ros_topic="/psi/sensors/range/right_inner" update_rate="1" min_range="" max_range="" field_of_view="0.0174533" ray_count="1">
+        <origin xyz="0 0.025 0" rpy="0 0 0"/>
+    </xacro:sonar_sensor>
+    <!-- IMU Sensor -->
+    <link name="imu_link">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1e-5"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+        <visual name="">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="${imu_length} ${imu_length} ${imu_length}"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="${imu_length} ${imu_length} ${imu_length}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+        <origin xyz="0.0 0.0 ${-base_height/2+0.01}" rpy="0.0 0.0 0.0"/>
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <axis xyz="0.0 0.0 0.0"/>
+    </joint>
+
+    <!-- Link description for the robot arm -->
+    <link name="left_arm_base">
+        <xacro:cuboid_inertial mass="${arm_generic_mass}" depth_sqrd="${arm_generic_depth_sqrd}" width_sqrd="${arm_generic_width_sqrd}" height_sqrd="${arm_generic_height_sqrd}" />
+        <visual>
+            <origin xyz="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="${arm_generic_depth} ${arm_generic_width} ${arm_generic_height}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="${arm_generic_depth} ${arm_generic_width} ${arm_generic_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="left_arm_base_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="left_arm_base"/>
+        <origin xyz="0.25 0.3 0.625"/>
+    </joint>
+
+    <link name="left_arm_lower">
+        <xacro:cuboid_inertial mass="${arm_generic_mass}" depth_sqrd="${arm_generic_depth_sqrd}" width_sqrd="${arm_generic_width_sqrd}" height_sqrd="${arm_generic_height_sqrd}" />
+        <visual name="">
+            <origin xyz="0.0 0.0 0.1" rpy="0.0 ${pi/2} 0.0"/>
+            <geometry>
+                <box size="${arm_generic_depth} ${arm_generic_width} ${arm_generic_height}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.1" rpy="0.0 ${pi/2} 0.0"/>
+            <geometry>
+                <box size="${arm_generic_depth} ${arm_generic_width} ${arm_generic_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="left_arm_lower_joint" type="revolute">
+        <origin xyz="0.125 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="left_arm_base"/>
+        <child link="left_arm_lower"/>
+        <axis xyz="0.0 1.0 0.0"/>
+        <limit lower="0.0" upper="1.33" effort="1000.0" velocity="0.5"/>
+    </joint>
+
+    <link name="left_arm_mid">
+        <xacro:cuboid_inertial mass="${arm_generic_mass}" depth_sqrd="${arm_generic_depth_sqrd}" width_sqrd="${arm_generic_width_sqrd}" height_sqrd="${arm_generic_height_sqrd}" />
+        <visual name="">
+            <origin xyz="0.1 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="${arm_generic_depth} ${arm_generic_width} ${arm_generic_height}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <origin xyz="0.1 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="${arm_generic_depth} ${arm_generic_width} ${arm_generic_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="left_arm_mid_joint" type="revolute">
+        <origin xyz="0.0 0.0 0.2" rpy="0.0 0.0 0.0"/>
+        <parent link="left_arm_lower"/>
+        <child link="left_arm_mid"/>
+        <axis xyz="0.0 -1.0 0.0"/>
+        <limit lower="-1.0" upper="1.5" effort="1000.0" velocity="0.5"/>
+    </joint>
+
+    <link name="left_arm_end">
+        <xacro:cuboid_inertial mass="${arm_end_mass}" depth_sqrd="${arm_end_depth_sqrd}" width_sqrd="${arm_end_width_sqrd}" height_sqrd="${arm_end_height_sqrd}" />
+        <visual name="">
+            <origin xyz="0.025 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="${arm_end_depth} ${arm_end_width} ${arm_end_height}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="${arm_end_depth} ${arm_end_width} ${arm_end_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="left_arm_end_joint" type="revolute">
+        <origin xyz="0.2 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="left_arm_mid"/>
+        <child link="left_arm_end"/>
+        <axis xyz="0.0 -1.0 0.0"/>
+        <limit lower="0.0" upper="1.1" effort="1000.0" velocity="0.5"/>
+    </joint>
+
+    <!-- Link description for the robot wheels -->
+    <xacro:wheel_motor prefix="right" end="${wheel_back}" side="${wheel_right}" />
+    <xacro:wheel_motor prefix="left" end="${wheel_back}" side="${wheel_left}" />
+    <xacro:wheel_caster prefix="right" end="${wheel_front}" side="${wheel_right}" />
+    <xacro:wheel_caster prefix="left" end="${wheel_front}" side="${wheel_left}" />
+
+    <!-- Gazebo plugin for ROS Control -->
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/</robotNamespace>
+        </plugin>
+    </gazebo>
+    <gazebo reference="camera_centre_link">
+        <sensor type="camera" name="camera_centre">
+            <update_rate>30.0</update_rate>
+            <camera name="centre">
+                <horizontal_fov>1.3962634</horizontal_fov>
+                <image>
+                    <width>800</width>
+                    <height>800</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.02</near>
+                    <far>300</far>
+                </clip>
+                <noise>
+                    <type>gaussian</type>
+                    <!-- Noise is sampled independently per pixel on each frame.
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. -->
+                    <mean>0.0</mean>
+                    <stddev>0.007</stddev>
+                </noise>
+            </camera>
+            <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                <alwaysOn>true</alwaysOn>
+                <updateRate>0.0</updateRate>
+                <cameraName>psi/camera_centre</cameraName>
+                <imageTopicName>image_raw</imageTopicName>
+                <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+                <frameName>camera_centre_link</frameName>
+                <hackBaseline>0.07</hackBaseline>
+                <distortionK1>0.0</distortionK1>
+                <distortionK2>0.0</distortionK2>
+                <distortionK3>0.0</distortionK3>
+                <distortionT1>0.0</distortionT1>
+                <distortionT2>0.0</distortionT2>
+            </plugin>
+        </sensor>
+    </gazebo>
+    <gazebo reference="camera_qr_link">
+        <sensor type="camera" name="camera_qr">
+            <update_rate>30.0</update_rate>
+            <camera name="centre">
+                <horizontal_fov>1.3962634</horizontal_fov>
+                <image>
+                    <width>800</width>
+                    <height>800</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.02</near>
+                    <far>300</far>
+                </clip>
+                <noise>
+                    <type>gaussian</type>
+                    <!-- Noise is sampled independently per pixel on each frame.
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. -->
+                    <mean>0.0</mean>
+                    <stddev>0.007</stddev>
+                </noise>
+            </camera>
+            <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                <alwaysOn>true</alwaysOn>
+                <updateRate>0.0</updateRate>
+                <cameraName>psi/camera_qr</cameraName>
+                <imageTopicName>image_raw</imageTopicName>
+                <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+                <frameName>camera_qr_link</frameName>
+                <hackBaseline>0.07</hackBaseline>
+                <distortionK1>0.0</distortionK1>
+                <distortionK2>0.0</distortionK2>
+                <distortionK3>0.0</distortionK3>
+                <distortionT1>0.0</distortionT1>
+                <distortionT2>0.0</distortionT2>
+            </plugin>
+        </sensor>
+    </gazebo>
+    <gazebo reference="imu_link">
+        <gravity>true</gravity>
+        <sensor name="imu_sensor" type="imu">
+            <always_on>true</always_on>
+            <update_rate>100</update_rate>
+            <visualize>true</visualize>
+            <topic>__default_topic__</topic>
+            <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+                <topicName>psi/imu</topicName>
+                <bodyName>imu_link</bodyName>
+                <updateRateHZ>10.0</updateRateHZ>
+                <gaussianNoise>0.0</gaussianNoise>
+                <xyzOffset>0 0 0</xyzOffset>
+                <rpyOffset>0 0 0</rpyOffset>
+                <frameName>imu_link</frameName>
+            </plugin>
+            <pose>0 0 0 0 0 0</pose>
+        </sensor>
+    </gazebo>
+</robot>

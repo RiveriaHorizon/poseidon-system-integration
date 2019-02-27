@@ -1,0 +1,7 @@
+[submodule "src/image_pipeline"]
+	url = https://github.com/ros-perception/image_pipeline.git
+[submodule "src/ros_comm"]
+	url = https://github.com/ros/ros_comm.git
+[submodule "src/rosserial"]
+	path = src/rosserial
+	url = https://github.com/ros-drivers/rosserial.git
