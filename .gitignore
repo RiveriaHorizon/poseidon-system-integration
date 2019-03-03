@@ -56,8 +56,6 @@ src/psi/bag
 src/psi/bags
 src/psi/arduino/.build/
 
-.vscode/
-
 # Project external package
 src/rosserial
 src/imu_tools
