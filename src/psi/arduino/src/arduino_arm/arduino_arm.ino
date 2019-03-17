@@ -1,5 +1,4 @@
 #include "Arduino.h"
-
 #include <Servo.h>
 #include <ros.h>
 #include <psi/ArmControl.h>
@@ -9,7 +8,7 @@
 #define WORMGEAR_LEFT_A 6
 #define WORMGEAR_LEFT_B 7
 #define WORMGEAR_LEFT_ENCODER 10
-#define WORMGEAR_SPEED 100
+#define WORMGEAR_SPEED 250
 
 // ROS initialization
 psi::ArmFeedback arm_fb_msg;
@@ -34,6 +33,12 @@ void spin_wormgear(String direction, int speed)
     else if (direction.equals("Backward"))
     {
         analogWrite(ENABLE_LEFT_WORMGEAR, speed);
+        digitalWrite(WORMGEAR_LEFT_A, HIGH);
+        digitalWrite(WORMGEAR_LEFT_B, LOW);
+    }
+    else if (direction.equals("Pause"))
+    {
+        analogWrite(ENABLE_LEFT_WORMGEAR, 0);
         digitalWrite(WORMGEAR_LEFT_A, HIGH);
         digitalWrite(WORMGEAR_LEFT_B, LOW);
     }
@@ -67,8 +72,6 @@ void loop()
     float revolution = gear_revolution / 3;
     int desired_encoder_count = revolution * 64 * 2;
 
-    delay(5000);
-
     while (wormgear_encoder_count <= desired_encoder_count)
     {
         spin_wormgear(direction, WORMGEAR_SPEED);
@@ -80,7 +83,6 @@ void loop()
 
     if (direction.equals("Forward"))
     {
-
         arm_fb_msg.wormgear_status = "Retract Complete";
     }
     else if (direction.equals("Backward"))
@@ -91,4 +93,5 @@ void loop()
     analogWrite(ENABLE_LEFT_WORMGEAR, 0);
 
     nh.spinOnce();
+    delay(1);
 }

@@ -31,8 +31,6 @@ class ImageAnalysis:
         self.ms_msg = MissionStatus()
         self.mission_status_pub = rospy.Publisher(
             'mission_status', MissionStatus, queue_size=1)
-        rospy.Subscriber("mission_status", MissionStatus,
-                         self.mission_status_cb)
 
     def mission_status_cb(self, data):
         self.mission_status = data.mission_status
@@ -75,6 +73,9 @@ class ImageAnalysis:
             cy = int(M_black['m01']/M_black['m00'])
             cv2.circle(blurred_image, (cx, cy), 20, (0, 0, 255), -1)
             self.de_msg.direction_error = cx - w/2
+            self.de_msg.header.stamp = rospy.Time.now()
+            # This should change in the future and be reflected in the urdf when a wheel base link is created
+            self.de_msg.header.frame_id = "base_link"
             self.direction_error_pub.publish(self.de_msg)
 
         cv2.imshow("Line Following Window",
@@ -90,10 +91,13 @@ class ImageAnalysis:
         # Get result from the incoming image publisher
         decoded_objects = pyzbar.decode(image)
         for obj in decoded_objects:
-            self.ms_msg.mission_status = obj.data
-            self.mission_status_pub.publish(self.ms_msg)
-            if "Wait" in obj.data:
-                self.qr_code_scanner.unregister()
+            scanned_mission = obj.data
+            if prev_mission is not scanned_mission:
+                self.ms_msg.header.stamp = rospy.Time.now()
+                # This should change in the future and be reflected in the urdf when a wheel base link is created
+                self.ms_msg.header.frame_id = "base_link"
+                self.ms_msg.mission_status = scanned_mission
+                self.mission_status_pub.publish(self.ms_msg)
 
         # Displays the scanned QR Code
         # Loop over all decoded objects
@@ -121,9 +125,6 @@ class ImageAnalysis:
 
     def start(self):
         while not rospy.is_shutdown():
-            if "Home" in self.mission_status:
-                self.qr_code_scanner = rospy.Subscriber('usb_cam/image_raw',
-                                                        Image, self.qr_image_cb, queue_size=1, buff_size=2**30)
             rospy.sleep(1)
 
 

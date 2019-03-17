@@ -53,7 +53,7 @@ namespace psi
     }
 
     const char * getType(){ return "psi/ArmFeedback"; };
-    const char * getMD5(){ return "2508d5cf7c59508acada88b65220c470"; };
+    const char * getMD5(){ return "168ac7a231323f92f45fefc31296bd2c"; };
 
   };
 

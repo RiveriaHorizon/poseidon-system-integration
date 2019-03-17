@@ -327,6 +327,7 @@
     <xacro:sonar_sensor name="sonar_right_inner_sensor" parent="sonar_base_right_inner_link" ros_topic="/psi/sensors/range/right_inner" update_rate="1" min_range="" max_range="" field_of_view="0.0174533" ray_count="1">
         <origin xyz="0 0.025 0" rpy="0 0 0"/>
     </xacro:sonar_sensor>
+
     <!-- IMU Sensor -->
     <link name="imu_link">
         <inertial>

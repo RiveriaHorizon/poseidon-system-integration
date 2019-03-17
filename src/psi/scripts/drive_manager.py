@@ -25,6 +25,8 @@ class Drive_Manager:
 
     def joystick_input_talker(self):
         rospy.loginfo("Publishing Joystick inputs.")
+        self.ji_msg.header.stamp = rospy.Time.now()
+        self.ji_msg.header.frame_id = "base_link"
         self.ji_msg.x_input = self.x_input
         self.ji_msg.y_input = self.y_input
         self.joystick_input_pub.publish(self.ji_msg)

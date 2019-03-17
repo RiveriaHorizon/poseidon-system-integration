@@ -21,19 +21,17 @@ class Navigation:
         self.angular_z = 0.0
         self.cardinal_direction = ""
 
-        self.cardinal_direction_msg = CardinalDirection()
+        self.cd_msg = CardinalDirection()
         self.cardinal_direction_pub = rospy.Publisher(
             'drive/cardinal_direction', CardinalDirection, queue_size=1)
 
-        rospy.Subscriber('drive/mission_status', MissionStatus,
+        rospy.Subscriber('mission_status', MissionStatus,
                          self.mission_status_cb)
 
         rospy.Subscriber('drive/direction_error', DirectionError,
                          self.drive_turn_control_cb)
 
     def translate_sensordata_to_motorspeed(self):
-        # Sonar sensor translation
-
         # QR code translation
         if "Wait" in self.mission_status:
             self.cardinal_direction = "T"
@@ -68,8 +66,11 @@ class Navigation:
         while not rospy.is_shutdown():
             self.translate_sensordata_to_motorspeed()
 
-            self.cardinal_direction_msg.cardinal_direction = self.cardinal_direction
-            self.cardinal_direction_pub.publish(self.cardinal_direction_msg)
+            self.cd_msg.header.stamp = rospy.Time.now()
+            # This shoud change in the future when the wheel base link is created and implemented in the urdf
+            self.cd_msg.header.frame_id = "base_link"
+            self.cd_msg.cardinal_direction = self.cardinal_direction
+            self.cardinal_direction_pub.publish(self.cd_msg)
 
             rospy.sleep(1)
 

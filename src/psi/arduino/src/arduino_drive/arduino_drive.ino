@@ -95,6 +95,17 @@ ros::Subscriber<psi::JoystickInput> joystick_input_sub("/psi/drive/joystick_inpu
 
 void setup()
 {
+  // ROS initialization
+  nh.initNode();
+  nh.advertise(imu_pub);
+  nh.advertise(compass_pub);
+  nh.advertise(range_left_outer_pub);
+  nh.advertise(range_left_inner_pub);
+  nh.advertise(range_right_outer_pub);
+  nh.advertise(range_right_inner_pub);
+  nh.subscribe(joystick_input_sub);
+
+  // Arduino initialization
   Wire.begin();
   SPI.begin();
 
@@ -124,16 +135,6 @@ void setup()
 
   // Digital potentiometer initialization
   pinMode(CS, OUTPUT);
-
-  // ROS initialization
-  nh.initNode();
-  nh.advertise(imu_pub);
-  nh.advertise(compass_pub);
-  nh.advertise(range_left_outer_pub);
-  nh.advertise(range_left_inner_pub);
-  nh.advertise(range_right_outer_pub);
-  nh.advertise(range_right_inner_pub);
-  nh.subscribe(joystick_input_sub);
 }
 
 void loop()
@@ -181,4 +182,5 @@ void loop()
   digitalPotWrite(address_y_input, y_input);
 
   nh.spinOnce();
+  delay(1);
 }

@@ -60,6 +60,7 @@ add_message_files(
   AqueousSensor.msg
   ArduinoSim.msg
   ArmControl.msg
+  ArmFeedback.msg
   CardinalDirection.msg
   DirectionError.msg
   JoystickInput.msg
