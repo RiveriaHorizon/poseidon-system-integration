@@ -38,7 +38,8 @@ class Drive_Manager:
         # joystick input range from 25 to 220, where 125 is the midpoint
         rospy.loginfo("Mapping Cardinal inputs to Joystick inputs.")
         if "N" in self.cardinal_direction:
-            # If speeds are negative, vary the position of the joystick depending on left or right
+            # If speeds are negative, vary the position of the joystick
+            # depending on left or right
             if self.cardinal_direction == "N":
                 rospy.loginfo("Vehicle approaching South.")
                 self.y_input = 15
@@ -59,7 +60,8 @@ class Drive_Manager:
             self.y_input = 125
 
         elif "S" in self.cardinal_direction:
-            # If speeds are positive, vary the position of the joystick depending on left or right
+            # If speeds are positive, vary the position of the joystick
+            # depending on left or right
             if self.cardinal_direction == "S":
                 rospy.loginfo("Vehicle approaching North.")
                 self.y_input = 240
@@ -89,7 +91,8 @@ class Drive_Manager:
 
     def start(self):
         """
-        TODO: Complete mapping of joystick input method plus finish insertion of argument
+        TODO: Complete mapping of joystick input method plus finish insertion
+        of argument
         """
         rospy.loginfo("Initializing Drive Manager node.")
         while not rospy.is_shutdown():

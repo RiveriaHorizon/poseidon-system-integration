@@ -1,14 +1,30 @@
 #include "Arduino.h"
+#include "math.h"
+
 #include <Servo.h>
 #include <ros.h>
 #include <psi/ArmControl.h>
 #include <psi/ArmFeedback.h>
 
-#define ENABLE_LEFT_WORMGEAR 9
-#define WORMGEAR_LEFT_A 6
-#define WORMGEAR_LEFT_B 7
-#define WORMGEAR_LEFT_ENCODER 10
-#define WORMGEAR_SPEED 250
+// Constants definition
+// Arduino connections
+int const ENABLE_LEFT_WORMGEAR = 9;
+int const WORMGEAR_LEFT_A = 6;
+int const WORMGEAR_LEFT_B = 7;
+int const WORMGEAR_LEFT_ENCODER = 10;
+int const WORMGEAR_SPEED = 100;
+// Constants used for arm
+double const LENGTH_ARM_WORM = 384;   //length of worm arm
+double const LENGTH_ARM_MID = 400;    //length of mid arm
+double const LENGTH_ARM_NOZZLE = 112; //length of nozzle arm
+double const DISTANCE_WE = 44;        //distance from worm to edge
+double const PI = 3.141592654;
+double const ACUTE_RADIAN = asin(DISTANCE_WE / LENGTH_ARM_MID); //acute fixed angle (radian)
+double const ACUTE_DEGREE = (180 / PI) * ACUTE_RADIAN;          //acute fixed angle (degree)
+// Height cosntants (wheel height WH, component height CH, effective stroke ES)
+double const HEIGHT_WHEEL = 260;            //ground to wheel height
+double const HEIGHT_COMPONENT = 480;        //base of robot to component height
+double const EFFECTIVE_STROKE_LENGTH = 800; //effective stroke lenght of linear actuator
 
 // ROS initialization
 psi::ArmFeedback arm_fb_msg;
@@ -16,6 +32,7 @@ ros::NodeHandle nh;
 ros::Publisher arm_feedback_pub("/psi/arm/feedback", &arm_fb_msg);
 
 // Wormgear variables
+unsigned long prev_ms = 0;
 int desired_encoder_count = 0;
 int wormgear_encoder_count = 0; // variable that counts the internal
                                 // encoder in the wormgear
