@@ -12,7 +12,7 @@ int const ENABLE_LEFT_WORMGEAR = 9;
 int const WORMGEAR_LEFT_A = 6;
 int const WORMGEAR_LEFT_B = 7;
 int const WORMGEAR_LEFT_ENCODER = 10;
-int const WORMGEAR_SPEED = 100;
+int const WORMGEAR_SPEED = 250;
 // Constants used for arm
 double const LENGTH_ARM_WORM = 384;   //length of worm arm
 double const LENGTH_ARM_MID = 400;    //length of mid arm
