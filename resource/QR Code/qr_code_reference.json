@@ -1,0 +1,74 @@
+{
+  "junction_sample": {
+    "Drive": {
+      "Direction": "Left",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Action": "None",
+      "Horizontal": 0,
+      "Vertical": 0
+    },
+    "Mission": {
+      "Junction": true,
+      "JunctionAhead": false,
+      "EndBlock": false,
+      "EndMission": false
+    }
+  },
+  "junction_ahead_sample": {
+    "Drive": {
+      "Direction": "Forward",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Action": "None",
+      "Horizontal": 0,
+      "Vertical": 0
+    },
+    "Mission": {
+      "Junction": false,
+      "JunctionAhead": true,
+      "EndBlock": false,
+      "EndMission": true
+    }
+  },
+  "junction_ahead_corridor_sample": {
+    "Drive": {
+      "Direction": "Forward",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Action": "Retract",
+      "Horizontal": 0,
+      "Vertical": 0
+    },
+    "Mission": {
+      "Junction": false,
+      "JunctionAhead": false,
+      "EndBlock": false,
+      "EndMission": false
+    }
+  },
+  "end_block_sample": {
+    "Drive": {
+      "Direction": "Backward",
+      "Wait": true,
+      "Delay": 5
+    },
+    "Arm": {
+      "Action": "Extend",
+      "Horizontal": 150,
+      "Vertical": 150
+    },
+    "Mission": {
+      "Junction": false,
+      "JunctionAhead": false,
+      "EndBlock": true,
+      "EndMission": false
+    }
+  }
+}

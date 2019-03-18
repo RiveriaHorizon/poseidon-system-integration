@@ -13,5 +13,6 @@ string arm_type
 uint16 servo_hinge_position
 uint16 servo_nozzle_position
 
-float32 wormgear_theta_in
+float32 horizontal_distance
+float32 vertical_distance
 string wormgear_direction

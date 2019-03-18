@@ -12,6 +12,7 @@ class Drive_Manager:
         rospy.init_node('drive_manager', anonymous=False)
 
         self.cardinal_direction = ""
+        self.prev_cardinal_direction = ""
         self.location = ""
         self.x_input = 0
         self.y_input = 0
@@ -23,39 +24,28 @@ class Drive_Manager:
         rospy.Subscriber('drive/cardinal_direction',
                          CardinalDirection, self.cardinal_direction_cb)
 
-    def joystick_input_talker(self):
-        rospy.loginfo("Publishing Joystick inputs.")
-        self.ji_msg.header.stamp = rospy.Time.now()
-        self.ji_msg.header.frame_id = "base_link"
-        self.ji_msg.x_input = self.x_input
-        self.ji_msg.y_input = self.y_input
-        self.joystick_input_pub.publish(self.ji_msg)
-
     def cardinal_direction_cb(self, data):
         self.cardinal_direction = data.cardinal_direction
+        self.map_cardinal_to_joystick_input()
+        self.joystick_input_talker()
 
     def map_cardinal_to_joystick_input(self):
         # joystick input range from 25 to 220, where 125 is the midpoint
-        rospy.loginfo("Mapping Cardinal inputs to Joystick inputs.")
         if "N" in self.cardinal_direction:
             # If speeds are negative, vary the position of the joystick
             # depending on left or right
             if self.cardinal_direction == "N":
-                rospy.loginfo("Vehicle approaching South.")
                 self.y_input = 15
                 self.x_input = 125
             elif self.cardinal_direction == "NE":
-                rospy.loginfo("Vehicle approaching South East.")
                 self.y_input = 125 * math.sin(math.radians(45))
                 self.x_input = 125 + 125 * math.cos(math.radians(45))
             elif self.cardinal_direction == "NW":
-                rospy.loginfo("Vehicle approaching South West.")
                 self.y_input = 125 * math.sin(math.radians(45))
                 self.x_input = 125 - 125 * math.cos(math.radians(45))
 
         elif "T" in self.cardinal_direction:
             # If speeds are at 0, set system to idle position
-            rospy.loginfo("Vehicle stopping.")
             self.x_input = 125
             self.y_input = 125
 
@@ -63,20 +53,16 @@ class Drive_Manager:
             # If speeds are positive, vary the position of the joystick
             # depending on left or right
             if self.cardinal_direction == "S":
-                rospy.loginfo("Vehicle approaching North.")
-                self.y_input = 240
+                self.y_input = 220
                 self.x_input = 125
             elif self.cardinal_direction == "SE":
-                rospy.loginfo("Vehicle approaching North East.")
                 self.y_input = 125 + 125 * math.sin(math.radians(45))
                 self.x_input = 125 + 125 * math.cos(math.radians(45))
             elif self.cardinal_direction == "SW":
-                rospy.loginfo("Vehicle approaching North West.")
                 self.y_input = 125 + 125 * math.sin(math.radians(45))
                 self.x_input = 125 * math.cos(math.radians(45))
 
         elif "W" in self.cardinal_direction:
-            rospy.loginfo("Vehicle turning right.")
             self.y_input = 125
             self.x_input = 220
 
@@ -89,15 +75,20 @@ class Drive_Manager:
             self.x_input = 125
             self.y_input = 125
 
+    def joystick_input_talker(self):
+        self.ji_msg.header.stamp = rospy.Time.now()
+        self.ji_msg.header.frame_id = "base_link"
+        self.ji_msg.x_input = self.x_input
+        self.ji_msg.y_input = self.y_input
+        self.joystick_input_pub.publish(self.ji_msg)
+
     def start(self):
         """
         TODO: Complete mapping of joystick input method plus finish insertion
         of argument
         """
-        rospy.loginfo("Initializing Drive Manager node.")
         while not rospy.is_shutdown():
-            self.map_cardinal_to_joystick_input()
-            self.joystick_input_talker()
+            rospy.sleep(1)
 
 
 if __name__ == "__main__":

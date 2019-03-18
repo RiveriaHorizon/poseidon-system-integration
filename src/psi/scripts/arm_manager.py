@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 import rospy
 from psi.msg import ArmControl
 from psi.msg import ArmFeedback
@@ -10,62 +11,71 @@ class Arm_Manager:
     def __init__(self):
         rospy.init_node('arm_manager', anonymous=False)
 
-        self.mission_status = ""
+        self.mission_data = ""
+        self.prev_mission_data = ""
 
         self.left_arm = self._Arm("left")
+
         self.ac_msg = ArmControl()
         self.arm_control_pub = rospy.Publisher(
             'arm/control', ArmControl, queue_size=1)
 
-        self.ms_msg = MissionStatus()
-        self.mission_status_pub = rospy.Publisher(
-            "mission_status", MissionStatus, queue_size=1)
-        rospy.Subscriber("mission_status", MissionStatus,
+        rospy.Subscriber("arm/mission_status", MissionStatus,
                          self.mission_status_cb)
 
         rospy.Subscriber("arm/feedback", ArmFeedback, self.arm_feedback_cb)
 
     def mission_status_cb(self, data):
-        self.mission_status = data.mission_status
+        self.mission_data = data.mission_status
+        if self.mission_data != self.prev_mission_data:
+            temp_mission_data = json.loads(self.mission_data)
+            # Single arm implementation
+            # This should be changed when a new arm is implemented
+            self.left_arm.action = temp_mission_data['Action']
+            self.left_arm.horizontal = temp_mission_data['Horizontal']
+            self.left_arm.vertical = temp_mission_data['Vertical']
+
+            self.arm_control()
 
     def arm_feedback_cb(self, data):
-        if "Extend Complete" in data.wormgear_status:
-            self.mission_status = "Continue Backward"
-        elif "Retract Complete" in data.wormgear_status:
+        pass
+
+    def arm_control(self):
+        self.ac_msg.header.stamp = rospy.Time.now()
+        # Single arm implementation
+        # This should be changed when a new arm is implemented
+        self.ac_msg.header.frame_id = "left_arm_lower"
+        self.ac_msg.arm_type = "Left"
+
+        if "Extend" in self.left_arm.action:
+            self.ac_msg.wormgear_direction = "Forward"
+            self.ac_msg.horizontal_distance = self.left_arm.horizontal
+            self.ac_msg.vertical_distance = self.left_arm.vertical
+        elif "Retract" in self.left_arm.action:
+            self.ac_msg.wormgear_direction = "Reverse"
+            self.ac_msg.horizontal_distance = self.left_arm.horizontal
+            self.ac_msg.vertical_distance = self.left_arm.vertical
+        elif "Pause" in self.left_arm.action:
+            self.ac_msg.wormgear_direction = "Pause"
+            self.ac_msg.horizontal_distance = self.left_arm.horizontal
+            self.ac_msg.vertical_distance = self.left_arm.vertical
+        elif "None" in self.left_arm.action:
             pass
         else:
-            self.mission_status = "Wait"
+            rospy.logerr_once("Invalid arm action.")
 
-    def horizontal_arm_control(self):
-        self.ac_msg.header.stamp = rospy.Time.now()
-        # frame_id needs to be changed when another arm is implemented
-        self.ac_msg.header.frame_id = "left_arm_lower"
-        if "Retract" in self.mission_status:
-            self.ac_msg.wormgear_direction = "Reverse"
-            self.ac_msg.wormgear_theta_in = 0.0
-        elif "Extend" in self.mission_status:
-            self.ac_msg.wormgear_direction = "Forward"
-            self.ac_msg.wormgear_theta_in = 45.0
-        elif "Pause" in self.mission_status:
-            self.ac_msg.wormgear_direction = "Pause"
-            self.ac_msg.wormgear_theta_in = 0.0
         self.arm_control_pub.publish(self.ac_msg)
 
     def start(self):
         while not rospy.is_shutdown():
-            self.horizontal_arm_control()
-
-            self.ms_msg.mission_status = self.mission_status
-            if self.mission_status:
-                self.ms_msg.header.stamp = rospy.Time.now()
-                self.ms_msg.header.frame_id = "left_arm_lower"
-                self.mission_status_pub.publish(self.ms_msg)
-
             rospy.sleep(1)
 
     class _Arm:
         def __init__(self, arm_type):
             self.arm_type = arm_type
+            self.action = ""
+            self.horizontal = 0.0
+            self.vertical = 0.0
 
 
 if __name__ == '__main__':

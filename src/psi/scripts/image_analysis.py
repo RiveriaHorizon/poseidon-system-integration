@@ -21,9 +21,9 @@ class ImageAnalysis:
                          Image, self.line_image_cb,
                          queue_size=1, buff_size=2**30)
 
-        self.qr_code_scanner = rospy.Subscriber('usb_cam/image_raw',
-                                                Image, self.qr_image_cb,
-                                                queue_size=1, buff_size=2**30)
+        rospy.Subscriber('usb_cam/image_raw',
+                         Image, self.qr_image_cb,
+                         queue_size=1, buff_size=2**30)
 
         self.de_msg = DirectionError()
         self.direction_error_pub = rospy.Publisher(
@@ -32,10 +32,7 @@ class ImageAnalysis:
         self.mission_status = ""
         self.ms_msg = MissionStatus()
         self.mission_status_pub = rospy.Publisher(
-            'mission_status', MissionStatus, queue_size=1)
-
-    def mission_status_cb(self, data):
-        self.mission_status = data.mission_status
+            'central/mission_status', MissionStatus, queue_size=1)
 
     def line_image_cb(self, data):
         # Grab the image from the image message and convert it to opencv format
@@ -95,42 +92,37 @@ class ImageAnalysis:
         decoded_objects = pyzbar.decode(image)
         unique_scan = set()
         for obj in decoded_objects:
-            barcode_data = obj.data
-            if barcode_data not in unique_scan:
-                unique_scan.add(barcode_data)
-
-        for scanned_data in unique_scan:
             self.ms_msg.header.stamp = rospy.Time.now()
             # This should change in the future and be reflected in the
             # urdf when a wheel base link is created
             self.ms_msg.header.frame_id = "base_link"
-            self.ms_msg.mission_status = scanned_data
+            self.ms_msg.mission_status = obj.data
             self.mission_status_pub.publish(self.ms_msg)
 
-        # # Displays the scanned QR Code for debugging
-        # # Loop over all decoded objects
-        # for decoded_object in decoded_objects:
-        #     points = decoded_object.polygon
+        # Displays the scanned QR Code for debugging
+        # Loop over all decoded objects
+        for decoded_object in decoded_objects:
+            points = decoded_object.polygon
 
-        #     # If the points do not form a quad, find convex hull
-        #     if len(points) > 4:
-        #         hull = cv2.convexHull(
-        #             numpy.array([point for point in points],
-        #                         dtype=numpy.float32))
-        #         hull = list(map(tuple, numpy.squeeze(hull)))
-        #     else:
-        #         hull = points
+            # If the points do not form a quad, find convex hull
+            if len(points) > 4:
+                hull = cv2.convexHull(
+                    numpy.array([point for point in points],
+                                dtype=numpy.float32))
+                hull = list(map(tuple, numpy.squeeze(hull)))
+            else:
+                hull = points
 
-        #     # Number of points in the convex hull
-        #     n = len(hull)
+            # Number of points in the convex hull
+            n = len(hull)
 
-        #     # Draw the convext hull
-        #     for j in range(0, n):
-        #         cv2.line(image, hull[j], hull[(j+1) % n], (255, 0, 0), 3)
+            # Draw the convext hull
+            for j in range(0, n):
+                cv2.line(image, hull[j], hull[(j+1) % n], (255, 0, 0), 3)
 
-        #     cv2.imshow("QRCode Image Window", image)
+            cv2.imshow("QRCode Image Window", image)
 
-        # cv2.waitKey(1)
+        cv2.waitKey(1)
 
     def start(self):
         while not rospy.is_shutdown():

@@ -189,6 +189,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/arduino_sim.py
   scripts/arm_manager.py
+  scripts/central.py
   scripts/drive_manager.py
   scripts/image_analysis.py
   scripts/navigation.py
