@@ -18,10 +18,12 @@ class ImageAnalysis:
 
         self.bridge = CvBridge()
         rospy.Subscriber('usb_cam/image_raw',
-                         Image, self.line_image_cb, queue_size=1, buff_size=2**30)
+                         Image, self.line_image_cb,
+                         queue_size=1, buff_size=2**30)
 
         self.qr_code_scanner = rospy.Subscriber('usb_cam/image_raw',
-                                                Image, self.qr_image_cb, queue_size=1, buff_size=2**30)
+                                                Image, self.qr_image_cb,
+                                                queue_size=1, buff_size=2**30)
 
         self.de_msg = DirectionError()
         self.direction_error_pub = rospy.Publisher(
@@ -51,7 +53,7 @@ class ImageAnalysis:
         lower_black = numpy.array([0,   0,   0])
         # Black color tuning in HSV color space
         # https://stackoverflow.com/questions/25398188/black-color-object-detection-hsv-range-in-opencv
-        upper_black = numpy.array([180, 255, 60])
+        upper_black = numpy.array([180, 255, 50])
         mask_black = cv2.inRange(hsv, lower_black, upper_black)
         mask_black = cv2.erode(mask_black, None, iterations=2)
         mask_black = cv2.dilate(mask_black, None, iterations=2)
@@ -74,7 +76,8 @@ class ImageAnalysis:
             cv2.circle(blurred_image, (cx, cy), 20, (0, 0, 255), -1)
             self.de_msg.direction_error = cx - w/2
             self.de_msg.header.stamp = rospy.Time.now()
-            # This should change in the future and be reflected in the urdf when a wheel base link is created
+            # This should change in the future and be reflected in the urdf
+            # when a wheel base link is created
             self.de_msg.header.frame_id = "base_link"
             self.direction_error_pub.publish(self.de_msg)
 
@@ -90,38 +93,44 @@ class ImageAnalysis:
 
         # Get result from the incoming image publisher
         decoded_objects = pyzbar.decode(image)
+        unique_scan = set()
         for obj in decoded_objects:
-            scanned_mission = obj.data
-            if prev_mission is not scanned_mission:
-                self.ms_msg.header.stamp = rospy.Time.now()
-                # This should change in the future and be reflected in the urdf when a wheel base link is created
-                self.ms_msg.header.frame_id = "base_link"
-                self.ms_msg.mission_status = scanned_mission
-                self.mission_status_pub.publish(self.ms_msg)
+            barcode_data = obj.data
+            if barcode_data not in unique_scan:
+                unique_scan.add(barcode_data)
 
-        # Displays the scanned QR Code
-        # Loop over all decoded objects
-        for decoded_object in decoded_objects:
-            points = decoded_object.polygon
+        for scanned_data in unique_scan:
+            self.ms_msg.header.stamp = rospy.Time.now()
+            # This should change in the future and be reflected in the
+            # urdf when a wheel base link is created
+            self.ms_msg.header.frame_id = "base_link"
+            self.ms_msg.mission_status = scanned_data
+            self.mission_status_pub.publish(self.ms_msg)
 
-            # If the points do not form a quad, find convex hull
-            if len(points) > 4:
-                hull = cv2.convexHull(
-                    numpy.array([point for point in points], dtype=numpy.float32))
-                hull = list(map(tuple, numpy.squeeze(hull)))
-            else:
-                hull = points
+        # # Displays the scanned QR Code for debugging
+        # # Loop over all decoded objects
+        # for decoded_object in decoded_objects:
+        #     points = decoded_object.polygon
 
-            # Number of points in the convex hull
-            n = len(hull)
+        #     # If the points do not form a quad, find convex hull
+        #     if len(points) > 4:
+        #         hull = cv2.convexHull(
+        #             numpy.array([point for point in points],
+        #                         dtype=numpy.float32))
+        #         hull = list(map(tuple, numpy.squeeze(hull)))
+        #     else:
+        #         hull = points
 
-            # Draw the convext hull
-            for j in range(0, n):
-                cv2.line(image, hull[j], hull[(j+1) % n], (255, 0, 0), 3)
+        #     # Number of points in the convex hull
+        #     n = len(hull)
 
-            cv2.imshow("QRCode Image Window", image)
+        #     # Draw the convext hull
+        #     for j in range(0, n):
+        #         cv2.line(image, hull[j], hull[(j+1) % n], (255, 0, 0), 3)
 
-        cv2.waitKey(1)
+        #     cv2.imshow("QRCode Image Window", image)
+
+        # cv2.waitKey(1)
 
     def start(self):
         while not rospy.is_shutdown():
