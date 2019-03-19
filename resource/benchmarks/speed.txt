@@ -1,0 +1,20 @@
+Linear speed - Forward (Minimal load)     : 6.30s / 120cm
+                                            6.50s / 120cm
+                                            6.42s / 120cm
+                                            6.20s / 120cm
+                                            6.80s / 120cm
+Linear speed - Backward (Minimal load)    : 7.80s / 120cm
+                                            7.25s / 120cm
+                                            7.04s / 120cm
+                                            6.93s / 120cm
+                                            7.50s / 120cm
+Turn speed - Anticlockwise (Minimal load) : 20.40s / Full Turn
+                                            20.13s / Full Turn
+                                            19.11s / Full Turn
+                                            19.74s / Full Turn
+                                            19.15s / Full Turn
+Turn speed - Clockwise (Minimal load)     : 19.26s / Full Turn
+                                            19.18s / Full Turn
+                                            19.05s / Full Turn
+                                            19.59s / Full Turn
+                                            19.51s / Full Turn

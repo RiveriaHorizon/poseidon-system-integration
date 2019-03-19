@@ -70,5 +70,41 @@
       "EndBlock": true,
       "EndMission": false
     }
+  },
+  "end_mission_sample": {
+    "Drive": {
+      "Direction": "Stop",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Action": "None",
+      "Horizontal": 0,
+      "Vertical": 0
+    },
+    "Mission": {
+      "Junction": false,
+      "JunctionAhead": false,
+      "EndBlock": true,
+      "EndMission": true
+    }
+  },
+  "normal_sample": {
+    "Drive": {
+      "Direction": "Forward",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Action": "None",
+      "Horizontal": 0,
+      "Vertical": 0
+    },
+    "Mission": {
+      "Junction": false,
+      "JunctionAhead": false,
+      "EndBlock": false,
+      "EndMission": false
+    }
   }
 }

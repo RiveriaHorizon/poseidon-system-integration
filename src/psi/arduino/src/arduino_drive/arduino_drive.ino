@@ -139,48 +139,47 @@ void setup()
 
 void loop()
 {
-  static uint32_t prev_ms = millis();
+  // static uint32_t prev_ms = millis();
+  //
+  // if ((millis() - prev_ms) > 50)
+  // {
+  //   mpu.update();
+  //   imu_msg.header.stamp = nh.now();
+  //   imu_msg.orientation.x = mpu.getRoll();
+  //   imu_msg.orientation.y = mpu.getPitch();
+  //   imu_msg.orientation.z = mpu.getYaw();
+  //   imu_msg.orientation.w = 1.0;
+  //   imu_msg.angular_velocity.x = mpu.getGyro(X_AXIS);
+  //   imu_msg.angular_velocity.y = mpu.getGyro(Y_AXIS);
+  //   imu_msg.angular_velocity.z = mpu.getGyro(Z_AXIS);
+  //   imu_msg.linear_acceleration.x = mpu.getAcc(X_AXIS) * GRAVITY_CONSTANT;
+  //   imu_msg.linear_acceleration.y = mpu.getAcc(Y_AXIS) * GRAVITY_CONSTANT;
+  //   imu_msg.linear_acceleration.z = mpu.getAcc(Z_AXIS) * GRAVITY_CONSTANT;
+  //   imu_pub.publish(&imu_msg);
 
-  if ((millis() - prev_ms) > 100)
-  {
-    mpu.update();
-    imu_msg.header.stamp = nh.now();
-    imu_msg.orientation.x = mpu.getRoll();
-    imu_msg.orientation.y = mpu.getPitch();
-    imu_msg.orientation.z = mpu.getYaw();
-    imu_msg.orientation.w = 1.0;
-    imu_msg.angular_velocity.x = mpu.getGyro(X_AXIS);
-    imu_msg.angular_velocity.y = mpu.getGyro(Y_AXIS);
-    imu_msg.angular_velocity.z = mpu.getGyro(Z_AXIS);
-    imu_msg.linear_acceleration.x = mpu.getAcc(X_AXIS) * GRAVITY_CONSTANT;
-    imu_msg.linear_acceleration.y = mpu.getAcc(Y_AXIS) * GRAVITY_CONSTANT;
-    imu_msg.linear_acceleration.z = mpu.getAcc(Z_AXIS) * GRAVITY_CONSTANT;
-    imu_pub.publish(&imu_msg);
+  //   compass_msg.header.stamp = nh.now();
+  //   compass_msg.magnetic_field.x = mpu.getMag(X_AXIS);
+  //   compass_msg.magnetic_field.y = mpu.getMag(Y_AXIS);
+  //   compass_msg.magnetic_field.z = mpu.getMag(Z_AXIS);
+  //   compass_pub.publish(&compass_msg);
 
-    compass_msg.header.stamp = nh.now();
-    compass_msg.magnetic_field.x = mpu.getMag(X_AXIS);
-    compass_msg.magnetic_field.y = mpu.getMag(Y_AXIS);
-    compass_msg.magnetic_field.z = mpu.getMag(Z_AXIS);
-    compass_pub.publish(&compass_msg);
-
-    range_msg.header.frame_id = "sonar_base_left_outer_link";
-    update_range_msg(TRIG_PIN_LEFT_OUTER, ECHO_PIN_LEFT_OUTER);
-    range_left_outer_pub.publish(&range_msg);
-    range_msg.header.frame_id = "sonar_base_left_inner_link";
-    update_range_msg(TRIG_PIN_LEFT_INNER, ECHO_PIN_LEFT_INNER);
-    range_left_inner_pub.publish(&range_msg);
-    range_msg.header.frame_id = "sonar_base_right_outer_link";
-    update_range_msg(TRIG_PIN_RIGHT_OUTER, ECHO_PIN_RIGHT_OUTER);
-    range_right_outer_pub.publish(&range_msg);
-    range_msg.header.frame_id = "sonar_base_right_inner_link";
-    update_range_msg(TRIG_PIN_RIGHT_INNER, ECHO_PIN_RIGHT_INNER);
-    range_right_inner_pub.publish(&range_msg);
-    prev_ms = millis();
-  }
+  //   range_msg.header.frame_id = "sonar_base_left_outer_link";
+  //   update_range_msg(TRIG_PIN_LEFT_OUTER, ECHO_PIN_LEFT_OUTER);
+  //   range_left_outer_pub.publish(&range_msg);
+  //   range_msg.header.frame_id = "sonar_base_left_inner_link";
+  //   update_range_msg(TRIG_PIN_LEFT_INNER, ECHO_PIN_LEFT_INNER);
+  //   range_left_inner_pub.publish(&range_msg);
+  //   range_msg.header.frame_id = "sonar_base_right_outer_link";
+  //   update_range_msg(TRIG_PIN_RIGHT_OUTER, ECHO_PIN_RIGHT_OUTER);
+  //   range_right_outer_pub.publish(&range_msg);
+  //   range_msg.header.frame_id = "sonar_base_right_inner_link";
+  //   update_range_msg(TRIG_PIN_RIGHT_INNER, ECHO_PIN_RIGHT_INNER);
+  //   range_right_inner_pub.publish(&range_msg);
+  //   prev_ms = millis();
+  // }
 
   digitalPotWrite(address_x_input, x_input);
   digitalPotWrite(address_y_input, y_input);
 
   nh.spinOnce();
-  delay(1);
 }
