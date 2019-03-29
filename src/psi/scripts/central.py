@@ -27,6 +27,7 @@ class Central:
             try:
                 self.arm_mission_control()
                 self.drive_mission_control()
+                self.status_mission_control()
                 self.prev_central_mission_data = self.central_mission_data
             except ValueError:
                 rospy.logwarn_once("Invalid QR Code detected.")

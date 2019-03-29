@@ -1,53 +1,54 @@
 {
-  "configurations": [
-    {
-      "browse": {
-        "databaseFilename": "",
-        "limitSymbolsToIncludedHeaders": true,
-        "path": [
-          "/home/riveria/CodeProjects/ROS/poseidon-system-integration",
-          "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/psi/arduino/lib",
-          "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/rosserial/rosserial_server/include",
-          "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/rosserial/rosserial_test/include",
-          "/home/riveria/CodeProjects/ROS/poseidon-system-integration/devel/include",
-          "/home/riveria/Downloads/arduino-1.8.8/libraries",
-          "/home/riveria/Downloads/arduino-1.8.8/hardware",
-          "/home/riveria/Downloads/arduino-1.8.8/hardware/tools/avr/avr/include",
-          "/home/riveria/Downloads/arduino-1.8.8/hardware/arduino/avr/libraries",
-          "/home/riveria/Arduino/libraries",
-          "/opt/ros/melodic/include",
-          "/usr/include"
-        ]
-      },
-      "includePath": [
-        "/home/riveria/Arduino/libraries/MPU9250",
-        "/home/riveria/Arduino/libraries/ArduinoSTL/src",
-        "/home/riveria/Arduino/libraries/EEPROMEx",
-        "/home/riveria/CodeProjects/ROS/poseidon-system-integration",
-        "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/psi/arduino/lib",
-        "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/rosserial/rosserial_server/include",
-        "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/rosserial/rosserial_test/include",
-        "/home/riveria/CodeProjects/ROS/poseidon-system-integration/devel/include",
-        "/home/riveria/Downloads/arduino-1.8.8/tools/**",
-        "/home/riveria/Downloads/arduino-1.8.8/hardware/arduino/avr/**",
-        "/home/riveria/Downloads/arduino-1.8.8/libraries",
-        "/home/riveria/Downloads/arduino-1.8.8/hardware/tools/avr/avr/include",
-        "/home/riveria/Downloads /arduino-1.8.8/hardware/arduino/avr/libraries",
-        "/home/riveria/Arduino/libraries",
-        "/opt/ros/melodic/include",
-        "/usr/include",
-        "/home/riveria/Downloads/arduino-1.8.8/libraries/Servo/src",
-        "${workspaceFolder}/src/psi/arduino/libraries/ros_lib"
-      ],
-      "name": "Linux",
-      "intelliSenseMode": "clang-x64",
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "c11",
-      "cppStandard": "c++17",
-      "forcedInclude": [
-        "/home/riveria/Downloads/arduino-1.8.8/hardware/arduino/avr/cores/arduino/Arduino.h"
-      ]
-    }
-  ],
-  "version": 4
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "/home/riveria/CodeProjects/ROS/poseidon-system-integration",
+                    "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/psi/arduino/lib",
+                    "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/rosserial/rosserial_server/include",
+                    "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/rosserial/rosserial_test/include",
+                    "/home/riveria/CodeProjects/ROS/poseidon-system-integration/devel/include",
+                    "/home/riveria/Downloads/arduino-1.8.8/libraries",
+                    "/home/riveria/Downloads/arduino-1.8.8/hardware",
+                    "/home/riveria/Downloads/arduino-1.8.8/hardware/tools/avr/avr/include",
+                    "/home/riveria/Downloads/arduino-1.8.8/hardware/arduino/avr/libraries",
+                    "/home/riveria/Arduino/libraries",
+                    "/opt/ros/melodic/include",
+                    "/usr/include"
+                ]
+            },
+            "includePath": [
+                "/home/riveria/Arduino/libraries/AccelStepper/src",
+                "/home/riveria/Arduino/libraries/MPU9250",
+                "/home/riveria/Arduino/libraries/ArduinoSTL/src",
+                "/home/riveria/Arduino/libraries/EEPROMEx",
+                "/home/riveria/CodeProjects/ROS/poseidon-system-integration",
+                "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/psi/arduino/lib",
+                "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/rosserial/rosserial_server/include",
+                "/home/riveria/CodeProjects/ROS/poseidon-system-integration/src/rosserial/rosserial_test/include",
+                "/home/riveria/CodeProjects/ROS/poseidon-system-integration/devel/include",
+                "/home/riveria/Downloads/arduino-1.8.8/tools/**",
+                "/home/riveria/Downloads/arduino-1.8.8/hardware/arduino/avr/**",
+                "/home/riveria/Downloads/arduino-1.8.8/libraries",
+                "/home/riveria/Downloads/arduino-1.8.8/hardware/tools/avr/avr/include",
+                "/home/riveria/Downloads /arduino-1.8.8/hardware/arduino/avr/libraries",
+                "/home/riveria/Arduino/libraries",
+                "/opt/ros/melodic/include",
+                "/usr/include",
+                "/home/riveria/Downloads/arduino-1.8.8/libraries/Servo/src",
+                "${workspaceFolder}/src/psi/arduino/libraries/ros_lib"
+            ],
+            "name": "Linux",
+            "intelliSenseMode": "clang-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "forcedInclude": [
+                "/home/riveria/ProgramFiles/arduino-1.8.8/hardware/arduino/avr/cores/arduino/Arduino.h"
+            ]
+        }
+    ],
+    "version": 4
 }

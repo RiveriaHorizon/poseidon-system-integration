@@ -2,17 +2,39 @@
   "junction_sample": {
     "Drive": {
       "Direction": "Left",
+      "Follow-up-Direction": "Forward",
       "Wait": false,
       "Delay": 0
     },
     "Arm": {
-      "Action": "None",
+      "Horizontal-Action": "None",
+      "Vertical-Action": "None",
       "Horizontal": 0,
       "Vertical": 0
     },
     "Mission": {
       "Junction": true,
-      "JunctionAhead": false,
+      "Follow-up": true,
+      "EndBlock": false,
+      "EndMission": false
+    }
+  },
+  "raise_arm_vertically_sample": {
+    "Drive": {
+      "Direction": "Forward",
+      "Follow-up-Direction": "None",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Horizontal-Action": "None",
+      "Vertical-Action": "Raise",
+      "Horizontal": 0,
+      "Vertical": 300
+    },
+    "Mission": {
+      "Junction": true,
+      "Follow-up": false,
       "EndBlock": false,
       "EndMission": false
     }
@@ -30,7 +52,6 @@
     },
     "Mission": {
       "Junction": false,
-      "JunctionAhead": true,
       "EndBlock": false,
       "EndMission": true
     }
@@ -48,7 +69,6 @@
     },
     "Mission": {
       "Junction": false,
-      "JunctionAhead": false,
       "EndBlock": false,
       "EndMission": false
     }
@@ -66,7 +86,6 @@
     },
     "Mission": {
       "Junction": false,
-      "JunctionAhead": false,
       "EndBlock": true,
       "EndMission": false
     }
@@ -84,7 +103,6 @@
     },
     "Mission": {
       "Junction": false,
-      "JunctionAhead": false,
       "EndBlock": true,
       "EndMission": true
     }
@@ -102,7 +120,6 @@
     },
     "Mission": {
       "Junction": false,
-      "JunctionAhead": false,
       "EndBlock": false,
       "EndMission": false
     }
