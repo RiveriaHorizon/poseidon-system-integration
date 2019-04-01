@@ -15,6 +15,7 @@ from psi.msg import MissionStatus
 class Navigation:
     def __init__(self):
         rospy.init_node('navigation', anonymous=False)
+        self.rate = rospy.Rate(10)
 
         self.status_mission_data = ""
         self.prev_status_mission_data = ""
@@ -81,7 +82,12 @@ class Navigation:
         self.navigate()
 
     def imu_cb(self, data):
-        self.orientation_z = data.orientation.z
+         # imu data ranges from -180 to 180
+         # To return it to positive, we add 360 to the negative values
+        if data.orientation.z < 0:
+            self.orientation_z = 360 + data.orientation.z
+        else:
+            self.orientation_z = data.orientation.z
 
     def navigate(self):
         self.cd_msg.header.stamp = rospy.Time.now()
@@ -107,16 +113,23 @@ class Navigation:
                         # Publish the message to turn the robot
                         self.cd_msg.cardinal_direction = self.cardinal_direction
                         self.cardinal_direction_pub.publish(self.cd_msg)
-                        while (self.orientation_z - self.prev_orientation_z < 90):
+                        # Experimentation shows that 60 degree is a right angle turn
+                        current_orientation = abs(
+                            self.orientation_z - self.prev_orientation_z)
+                        while (current_orientation < 90):
                             self.cardinal_direction = "E"
+                            # Recalculate orientation in the while loop
+                            current_orientation = abs(
+                                self.orientation_z - self.prev_orientation_z)
                             # Publish as long as the vehicle hasn't reach the 90 degrees
                             self.cd_msg.cardinal_direction = self.cardinal_direction
                             self.cardinal_direction_pub.publish(self.cd_msg)
-                            rospy.sleep(1)
+                            self.rate.sleep()
                         if self.follow_up:
                             if "Forward" in self.follow_up_direction:
                                 self.direction = self.follow_up_direction
                                 # Publish message to move robot
+                                self.cardinal_direction = "N"
                                 self.cd_msg.cardinal_direction = self.cardinal_direction
                                 self.cardinal_direction_pub.publish(
                                     self.cd_msg)
@@ -127,16 +140,22 @@ class Navigation:
                         # Publish the message to turn the robot
                         self.cd_msg.cardinal_direction = self.cardinal_direction
                         self.cardinal_direction_pub.publish(self.cd_msg)
-                        while (self.orientation_z - self.prev_orientation_z < 90):
+                        # Experimentation shows that 90 degree is a right angle turn
+                        current_orientation = abs(
+                            self.orientation_z - self.prev_orientation_z)
+                        while (current_orientation < 90):
+                            current_orientation = abs(
+                                self.orientation_z - self.prev_orientation_z)
                             self.cardinal_direction = "W"
                             # Publish the message to turn the vehicle as long as the heading hasn't reach 90 degrees
                             self.cd_msg.cardinal_direction = self.cardinal_direction
                             self.cardinal_direction_pub.publish(self.cd_msg)
-                            rospy.sleep(1)
+                            self.rate.sleep()
                         if self.follow_up:
                             if "Forward" in self.follow_up_direction:
                                 self.direction = self.follow_up_direction
                                 # Publish the message to move robot
+                                self.cardinal_direction = "N"
                                 self.cd_msg.cardinal_direction = self.cardinal_direction
                                 self.cardinal_direction_pub.publish(
                                     self.cd_msg)
@@ -149,16 +168,24 @@ class Navigation:
                         # Publish the message to turn the robot
                         self.cd_msg.cardinal_direction = self.cardinal_direction
                         self.cardinal_direction_pub.publish(self.cd_msg)
-                        while (self.orientation_z - self.prev_orientation_z < 90):
+                        # Experimentation shows that 60 degree is a right angle turn
+                        if self.prev_orientation_z < 60:
+                            self.prev_orientation_z = 360 + self.prev_orientation_z
+                        current_orientation = abs(
+                            self.orientation_z - self.prev_orientation_z)
+                        while (current_orientation < 90):
+                            current_orientation = abs(
+                                self.orientation_z - self.prev_orientation_z)
                             self.cardinal_direction = "W"
                             # Publish the message to turn the robot as long as the desired heading hasn't reach
                             self.cd_msg.cardinal_direction = self.cardinal_direction
                             self.cardinal_direction_pub.publish(self.cd_msg)
-                            rospy.sleep(1)
+                            self.rate.sleep()
                         if self.follow_up:
                             if "Forward" in self.follow_up_direction:
                                 self.direction = self.follow_up_direction
                                 # Publish message to move the robot
+                                self.cardinal_direction = "N"
                                 self.cd_msg.cardinal_direction = self.cardinal_direction
                                 self.cardinal_direction_pub.publish(
                                     self.cd_msg)
@@ -169,21 +196,30 @@ class Navigation:
                         # Publish message to turn the robot
                         self.cd_msg.cardinal_direction = self.cardinal_direction
                         self.cardinal_direction_pub.publish(self.cd_msg)
-                        while (self.orientation_z - self.prev_orientation_z < 90):
+                        # Experimentation shows that 90 degree is a right angle turn
+                        # Since the orientation outputs in absolute, this will solve the 0/360 case.
+                        if self.prev_orientation_z > 300:
+                            self.prev_orientation_z = 360 - self.prev_orientation_z
+                        current_orientation = abs(
+                            self.orientation_z - self.prev_orientation_z)
+                        while (current_orientation < 90):
+                            current_orientation = abs(
+                                self.orientation_z - self.prev_orientation_z)
                             self.cardinal_direction = "E"
                             # Publish message as long as the desired heading hasn't been reached
                             self.cd_msg.cardinal_direction = self.cardinal_direction
                             self.cardinal_direction_pub.publish(self.cd_msg)
-                            rospy.sleep(1)
+                            self.rate.sleep()
                         if self.follow_up:
                             if "Forward" in self.follow_up_direction:
                                 self.direction = self.follow_up_direction
+                                self.cardinal_direction = "N"
                                 # Publish message to move the robot
                                 self.cd_msg.cardinal_direction = self.cardinal_direction
                                 self.cardinal_direction_pub.publish(
                                     self.cd_msg)
 
-            elif "Forward" in self.direction:
+            if "Forward" in self.direction:
                 if self.direction_error < -0.2:
                     self.cardinal_direction = "NW"
                 elif self.direction_error > 0.2:

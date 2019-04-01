@@ -48,7 +48,7 @@ sensor_msgs::MagneticField compass_msg;
 sensor_msgs::Range range_msg;
 ros::NodeHandle nh;
 ros::Publisher imu_pub("/psi/sensors/imu", &imu_msg);
-ros::Publisher compass_pub("/psi/sensors/compass", &compass_msg);
+// ros::Publisher compass_pub("/psi/sensors/compass", &compass_msg);
 // ros::Publisher range_left_outer_pub("/psi/sensors/range/left_outer", &range_msg);
 // ros::Publisher range_left_inner_pub("/psi/sensors/range/left_inner", &range_msg);
 // ros::Publisher range_right_outer_pub("/psi/sensors/range/right_outer", &range_msg);
@@ -131,8 +131,8 @@ long calculate_steps(long y_2)
 
 void prepare_vertical_motion()
 {
-  double y_in = vertical_input; //current height of plate wrt component, Yplate height to be obtained
-  long y_2 = y_plate_0 - y_in;  //Yin to change Y1
+  float y_in = vertical_input; //current height of plate wrt component, Yplate height to be obtained
+  long y_2 = y_plate_0 - y_in; //Yin to change Y1
   long target_steps = 0;
   if (y_in < 100)
   {
@@ -171,12 +171,13 @@ void setup()
   // ROS initialization
   nh.initNode();
   nh.advertise(imu_pub);
-  nh.advertise(compass_pub);
+  // nh.advertise(compass_pub);
   // nh.advertise(range_left_outer_pub);
   // nh.advertise(range_left_inner_pub);
   // nh.advertise(range_right_outer_pub);
   // nh.advertise(range_right_inner_pub);
   nh.subscribe(joystick_input_sub);
+  nh.subscribe(arm_control_sub);
 
   // Arduino initialization
   Wire.begin();
@@ -188,7 +189,7 @@ void setup()
   std::copy(orientation_covariance, orientation_covariance + 9, imu_msg.orientation_covariance);
   std::copy(angular_velocity_covariance, angular_velocity_covariance + 9, imu_msg.angular_velocity_covariance);
   std::copy(linear_acceleration_covariance, linear_acceleration_covariance + 9, imu_msg.linear_acceleration_covariance);
-  std::copy(magnetic_field_covariance, magnetic_field_covariance + 9, compass_msg.magnetic_field_covariance);
+  // std::copy(magnetic_field_covariance, magnetic_field_covariance + 9, compass_msg.magnetic_field_covariance);
   mpu.setup();
   mpu.calibrateAccelGyro();
 
@@ -227,13 +228,13 @@ void loop()
 
   static uint32_t prev_ms = millis();
 
-  if ((millis() - prev_ms) > 20)
+  if ((millis() - prev_ms) > 250)
   {
     mpu.update();
     imu_msg.header.stamp = nh.now();
     imu_msg.orientation.x = mpu.getRoll();
     imu_msg.orientation.y = mpu.getPitch();
-    imu_msg.orientation.z = abs(mpu.getYaw());
+    imu_msg.orientation.z = mpu.getYaw();
     imu_msg.orientation.w = 1.0;
     imu_msg.angular_velocity.x = mpu.getGyro(X_AXIS);
     imu_msg.angular_velocity.y = mpu.getGyro(Y_AXIS);
@@ -243,11 +244,11 @@ void loop()
     imu_msg.linear_acceleration.z = mpu.getAcc(Z_AXIS) * GRAVITY_PULL_CONSTANT;
     imu_pub.publish(&imu_msg);
 
-    compass_msg.header.stamp = nh.now();
-    compass_msg.magnetic_field.x = mpu.getMag(X_AXIS);
-    compass_msg.magnetic_field.y = mpu.getMag(Y_AXIS);
-    compass_msg.magnetic_field.z = mpu.getMag(Z_AXIS);
-    compass_pub.publish(&compass_msg);
+    // compass_msg.header.stamp = nh.now();
+    // compass_msg.magnetic_field.x = mpu.getMag(X_AXIS);
+    // compass_msg.magnetic_field.y = mpu.getMag(Y_AXIS);
+    // compass_msg.magnetic_field.z = mpu.getMag(Z_AXIS);
+    // compass_pub.publish(&compass_msg);
 
     //   range_msg.header.frame_id = "sonar_base_left_outer_link";
     //   update_range_msg(TRIG_PIN_LEFT_OUTER, ECHO_PIN_LEFT_OUTER);
@@ -265,8 +266,8 @@ void loop()
     digitalPotWrite(address_x_input, x_input);
     digitalPotWrite(address_y_input, y_input);
 
-    nh.spinOnce();
-
     prev_ms = millis();
   }
+
+  nh.spinOnce();
 }

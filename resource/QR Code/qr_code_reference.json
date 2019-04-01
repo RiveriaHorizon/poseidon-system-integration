@@ -1,5 +1,25 @@
 {
-  "junction_sample": {
+  "junction_right_sample": {
+    "Drive": {
+      "Direction": "Right",
+      "Follow-up-Direction": "Forward",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Horizontal-Action": "None",
+      "Vertical-Action": "None",
+      "Horizontal": 0,
+      "Vertical": 0
+    },
+    "Mission": {
+      "Junction": true,
+      "Follow-up": true,
+      "EndBlock": false,
+      "EndMission": false
+    }
+  },
+  "junction_left_sample": {
     "Drive": {
       "Direction": "Left",
       "Follow-up-Direction": "Forward",
@@ -23,8 +43,8 @@
     "Drive": {
       "Direction": "Forward",
       "Follow-up-Direction": "None",
-      "Wait": false,
-      "Delay": 0
+      "Wait": true,
+      "Delay": 5
     },
     "Arm": {
       "Horizontal-Action": "None",
@@ -33,42 +53,28 @@
       "Vertical": 300
     },
     "Mission": {
-      "Junction": true,
+      "Junction": false,
       "Follow-up": false,
       "EndBlock": false,
       "EndMission": false
     }
   },
-  "junction_ahead_sample": {
+  "extend_arm_horizontally_sample": {
     "Drive": {
-      "Direction": "Forward",
-      "Wait": false,
-      "Delay": 0
+      "Direction": "Pause",
+      "Follow-up-Direction": "Forward",
+      "Wait": true,
+      "Delay": 5
     },
     "Arm": {
-      "Action": "None",
-      "Horizontal": 0,
+      "Horizontal-Action": "Extend",
+      "Vertical-Action": "None",
+      "Horizontal": 750,
       "Vertical": 0
     },
     "Mission": {
       "Junction": false,
-      "EndBlock": false,
-      "EndMission": true
-    }
-  },
-  "junction_ahead_corridor_sample": {
-    "Drive": {
-      "Direction": "Forward",
-      "Wait": false,
-      "Delay": 0
-    },
-    "Arm": {
-      "Action": "Retract",
-      "Horizontal": 0,
-      "Vertical": 0
-    },
-    "Mission": {
-      "Junction": false,
+      "Follow-up": false,
       "EndBlock": false,
       "EndMission": false
     }
@@ -76,16 +82,19 @@
   "end_block_sample": {
     "Drive": {
       "Direction": "Backward",
+      "Follow-up-Direction": "None",
       "Wait": true,
       "Delay": 5
     },
     "Arm": {
-      "Action": "Extend",
-      "Horizontal": 150,
-      "Vertical": 150
+      "Horizontal-Action": "None",
+      "Vertical-Action": "None",
+      "Horizontal": 0,
+      "Vertical": 0
     },
     "Mission": {
       "Junction": false,
+      "Follow-up": false,
       "EndBlock": true,
       "EndMission": false
     }
@@ -93,35 +102,21 @@
   "end_mission_sample": {
     "Drive": {
       "Direction": "Stop",
+      "Follow-up-Direction": "None",
       "Wait": false,
       "Delay": 0
     },
     "Arm": {
-      "Action": "None",
+      "Horizontal-Action": "None",
+      "Vertical-Action": "None",
       "Horizontal": 0,
       "Vertical": 0
     },
     "Mission": {
       "Junction": false,
+      "Follow-up": false,
       "EndBlock": true,
       "EndMission": true
-    }
-  },
-  "normal_sample": {
-    "Drive": {
-      "Direction": "Forward",
-      "Wait": false,
-      "Delay": 0
-    },
-    "Arm": {
-      "Action": "None",
-      "Horizontal": 0,
-      "Vertical": 0
-    },
-    "Mission": {
-      "Junction": false,
-      "EndBlock": false,
-      "EndMission": false
     }
   }
 }
