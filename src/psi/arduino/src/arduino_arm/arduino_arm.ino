@@ -3,6 +3,7 @@
 #include <Servo.h> //Servo library
 #include <ros.h>
 #include <psi/ArmControl.h>
+#include <psi/ArmHorizontalFeedback.h>
 
 #define SERVO_MIDARM 36
 #define SERVO_NOZARM 33
@@ -15,6 +16,8 @@
 
 // ROS initialization
 ros::NodeHandle nh;
+psi::ArmHorizontalFeedback debug_msg;
+ros::Publisher debug_pub("/psi/sensors/arm/horizontal", &debug_msg);
 
 Servo servo_midarm; //initialize a servo object for the connected servo
 Servo servo_nozarm;
@@ -65,6 +68,7 @@ void setup()
     // ROS initialization
     nh.initNode();
     nh.subscribe(arm_control_sub);
+    debug_msg.header.frame_id = "horizontal_arm_link";
 
     servo_midarm.attach(SERVO_MIDARM); // attach the signal pin of servo to pin of arduino
     servo_nozarm.attach(SERVO_NOZARM);
@@ -128,13 +132,11 @@ void loop()
     //reset arduino, to eliminate the drifting
     if (X == 0)
     {
-        // Serial.println("RESET");
+        nh.logdebug("Resetting Arduino.");
         resetFunc();
     }
 
     nh.spinOnce();
-
-    //  digitalWrite(resetPin, HIGH);
 
     //trigger motion only if no error and to show error if above the limits
 }
@@ -148,8 +150,10 @@ void checkvalue(int v) {
   //check X value distance
   //return result of arm angles
 
+  debug_msg.header.stamp = nh.now();
+
   if (X <= 20) {
-    Serial.println("HOME STATE");
+    nh.loginfo("Returning to Home State.");
     //input X value less than 58 will be at rest state (Standard X Home value = 0)
     //Angles
     theta1 = 90; //worm arm angle at rest (degree)
@@ -158,6 +162,7 @@ void checkvalue(int v) {
 
   }
   else if (X <= 180) {
+    nh.loginfo("Horizontal value less than or equal to 180.");
     //input X value less than 158 will be at ready state (Standard X ready value = 100)
     //Activate only noz arm at horizontal angle
     //Angles
@@ -167,23 +172,23 @@ void checkvalue(int v) {
 
   }
   else if (X <= 465) {
+    nh.loginfo("Horizontal value less than or equal to 465.");
     //input X value less than 465
     //Activate mid arm to extend further and ensure noz arm is horizontal
     //Angles
     theta1 = 90; //worm arm angle at rest(degree)
     float theta2rad = asin((X - L3 + D1) / L2); //mid arm angle varies (radian)
     theta2 = round((180 / PI) * theta2rad)-3; //mid arm angle varies (degree)
-    Serial.print("Theta2: "); Serial.println(theta2);
     theta3 = theta2-7; //noz arm angle varies wrt to mid arm angle (at rest 15, 20) (degree)
   }
     else if (X <= 485) {
+    nh.loginfo("Horizontal value less than or equal to 485.");
     //Activate mid arm to extend further and ensure noz arm is horizontal
     //Angles
     X=X-20;
     theta1 = 90; //worm arm angle at rest(degree)
     float theta2rad = asin((X - L3 + D1) / L2); //mid arm angle varies (radian)
     theta2 = round((180 / PI) * theta2rad)-1; //mid arm angle varies (degree)
-    Serial.print("Theta2: "); Serial.println(theta2);
     theta3 = theta2-7; //noz arm angle varies wrt to mid arm angle (at rest 15, 20) (degree)
   }
   else if (X <= 500) {
@@ -227,14 +232,13 @@ void checkvalue(int v) {
     theta3 = theta1+45; //noz arm angle at rest (degree)
   }
   else {
-    Serial.println("ERROR, MAX HORIZONTAL VALUE");
+    nh.logerror("Max horizontal value was input, please check horizontal value again.");
   }
 
   delay(100);
-  Serial.println(theta1);
-  Serial.println(theta2);
-  Serial.println(theta3);
-
+  debug_msg.theta1 = theta1;
+  debug_msg.theta2 = theta2;
+  debug_msg.theta3 = theta3;
 
   //Move Servo
   delay(1000);
@@ -251,13 +255,15 @@ void checkvalue(int v) {
     //      WgrA=WgrA-6;
     //    }
     double Ec = 37 * (abs(WgrA)); //Eqn of encoder count from Angle (Experimental)
+    debug_msg.wormgear_angle = WgrA;
+    debug_msg.wormgear_desired_encoder_count = Ec;
     Serial.println(WgrA);
     Serial.println(Ec);
 
     while (count_encoder1 <= Ec) {
       spin_wormgear(WgrA); //Worm Gear Motor Direction
     }
-    Serial.println(count_encoder1); //print encoder count in the end
+    debug_msg.wormgear_recorded_encoder_count = count_encoder1; //print encoder count in the end
 
     analogWrite(ENABLE_A, 0);
   }
@@ -277,12 +283,11 @@ void checkvalue(int v) {
   count_encoder1 = 0;
   theta1in = theta1;
   theta2in = theta2;
-  Serial.print("Servo Mid Arm Angle : "); Serial.print(servo_midarm.read()); //check state of mid arm
-  Serial.println(" ");
-  Serial.print("Servo Nozzle Arm Angle : "); Serial.print(servo_nozarm.read()); //check state of noz arm
-  Serial.println(" ");
-
-  Serial.println("-------------------------------------"); //Showing the details
+  debug_msg.servo_midarm = servo_midarm.read();
+  debug_msg.servo_nozarm = servo_nozarm.read();
+  
+  debug_pub.publish(&debug_msg);
+  nh.spinOnce();
 
   delay(1000);
 

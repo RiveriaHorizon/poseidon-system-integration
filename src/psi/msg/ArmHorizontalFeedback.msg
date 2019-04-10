@@ -1,0 +1,10 @@
+Header header
+
+float64 wormgear_angle
+float64 wormgear_desired_encoder_count
+float64 wormgear_recorded_encoder_count
+float64 servo_midarm
+float64 servo_nozarm
+float64 theta1
+float64 theta2
+float64 theta3
