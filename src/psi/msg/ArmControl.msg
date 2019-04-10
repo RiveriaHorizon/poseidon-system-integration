@@ -10,9 +10,6 @@
 Header header
 
 string arm_type
-uint64 servo_hinge_position
-uint64 servo_nozzle_position
 
 float64 horizontal_distance
 float64 vertical_distance
-string wormgear_direction

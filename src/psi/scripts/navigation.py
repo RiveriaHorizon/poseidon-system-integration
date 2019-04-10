@@ -114,12 +114,15 @@ class Navigation:
                         self.cd_msg.cardinal_direction = self.cardinal_direction
                         self.cardinal_direction_pub.publish(self.cd_msg)
                         # Experimentation shows that 60 degree is a right angle turn
-                        current_orientation = abs(
+                        if self.prev_orientation_z > 270:
+                            self.prev_orientation_z = 360 - self.prev_orientation_z
+                            self.orientation_z = 360 - self.orientation_z
+                        delta_orientation = abs(
                             self.orientation_z - self.prev_orientation_z)
-                        while (current_orientation < 90):
+                        while (delta_orientation < 90):
                             self.cardinal_direction = "E"
                             # Recalculate orientation in the while loop
-                            current_orientation = abs(
+                            delta_orientation = abs(
                                 self.orientation_z - self.prev_orientation_z)
                             # Publish as long as the vehicle hasn't reach the 90 degrees
                             self.cd_msg.cardinal_direction = self.cardinal_direction
@@ -133,6 +136,7 @@ class Navigation:
                                 self.cd_msg.cardinal_direction = self.cardinal_direction
                                 self.cardinal_direction_pub.publish(
                                     self.cd_msg)
+                                self.end_block = False
                     elif "Right" in self.direction:
                         # Determine the heading, and check if we have turned 90 degrees
                         self.prev_orientation_z = self.orientation_z
@@ -141,12 +145,16 @@ class Navigation:
                         self.cd_msg.cardinal_direction = self.cardinal_direction
                         self.cardinal_direction_pub.publish(self.cd_msg)
                         # Experimentation shows that 90 degree is a right angle turn
-                        current_orientation = abs(
+                        # Attempts to solve the 0/360 heading position error
+                        if self.prev_orientation_z < 90:
+                            self.prev_orientation_z = 360 + self.prev_orientation_z
+                            self.orientation_z = self.orientation_z
+                        delta_orientation = abs(
                             self.orientation_z - self.prev_orientation_z)
-                        while (current_orientation < 90):
+                        while (delta_orientation < 90):
                             self.cardinal_direction = "W"
                             # Recalculate orientation in while loop
-                            current_orientation = abs(
+                            delta_orientation = abs(
                                 self.orientation_z - self.prev_orientation_z)
                             # Publish the message to turn the vehicle as long as the heading hasn't reach 90 degrees
                             self.cd_msg.cardinal_direction = self.cardinal_direction
@@ -160,6 +168,7 @@ class Navigation:
                                 self.cd_msg.cardinal_direction = self.cardinal_direction
                                 self.cardinal_direction_pub.publish(
                                     self.cd_msg)
+                                self.end_block = False
                 else:  # If the end_block flag hasn't been triggered, we follow the motion in the qr code.
                     # Execute the direction, which is a turn action
                     if "Left" in self.direction:
@@ -172,12 +181,13 @@ class Navigation:
                         # Experimentation shows that 90 degree is a right angle turn
                         if self.prev_orientation_z < 90:
                             self.prev_orientation_z = 360 + self.prev_orientation_z
-                        current_orientation = abs(
+                            self.orientation_z = 360 + self.orientation_z
+                        delta_orientation = abs(
                             self.orientation_z - self.prev_orientation_z)
-                        while (current_orientation < 90):
+                        while (delta_orientation < 90):
                             self.cardinal_direction = "W"
                             # Recalculate orientation in while loop
-                            current_orientation = abs(
+                            delta_orientation = abs(
                                 self.orientation_z - self.prev_orientation_z)
                             # Publish the message to turn the robot as long as the desired heading hasn't reach
                             self.cd_msg.cardinal_direction = self.cardinal_direction
@@ -199,16 +209,14 @@ class Navigation:
                         self.cd_msg.cardinal_direction = self.cardinal_direction
                         self.cardinal_direction_pub.publish(self.cd_msg)
                         # Experimentation shows that 90 degree is a right angle turn
-                        # Since the orientation outputs in absolute, this attempts to solve the 0/360 case.
-                        if self.prev_orientation_z > 270:
-                            self.prev_orientation_z = 360 - self.prev_orientation_z
-                        current_orientation = abs(
+                        delta_orientation = abs(
                             self.orientation_z - self.prev_orientation_z)
-                        while (current_orientation < 90):
+                        while (delta_orientation < 90):
                             self.cardinal_direction = "E"
                             # Recalculates orientation in the while loop
-                            current_orientation = abs(
+                            delta_orientation = abs(
                                 self.orientation_z - self.prev_orientation_z)
+                            print(delta_orientation)
                             # Publish message as long as the desired heading hasn't been reached
                             self.cd_msg.cardinal_direction = self.cardinal_direction
                             self.cardinal_direction_pub.publish(self.cd_msg)
@@ -223,16 +231,16 @@ class Navigation:
                                     self.cd_msg)
 
             if "Forward" in self.direction:
-                if self.direction_error < -0.2:
+                if self.direction_error < -0.1:
                     self.cardinal_direction = "NW"
-                elif self.direction_error > 0.2:
+                elif self.direction_error > 0.1:
                     self.cardinal_direction = "NE"
                 else:
                     self.cardinal_direction = "N"
             elif "Backward" in self.direction:
-                if self.direction_error < -0.2:
+                if self.direction_error < -0.1:
                     self.cardinal_direction = "SW"
-                elif self.direction_error > 0.2:
+                elif self.direction_error > 0.1:
                     self.cardinal_direction = "SE"
                 else:
                     self.cardinal_direction = "S"
@@ -248,7 +256,11 @@ class Navigation:
             temp_mission_data = json.loads(self.status_mission_data)
             self.junction = temp_mission_data['Junction']
             self.follow_up = temp_mission_data['Follow-up']
-            self.end_block = temp_mission_data['EndBlock']
+            try:
+                self.end_block = temp_mission_data['EndBlock']
+            except KeyError:
+                rospy.loginfo("No End Block value given.")
+                pass
             self.end_mission = temp_mission_data['EndMission']
 
     def start(self):

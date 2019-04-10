@@ -44,39 +44,33 @@ class Arm_Manager:
     def horizontal_action(self):
         # Vertical motion to not move is by sending the same distance over
         if "Extend" in self.left_arm.horizontal_action:
-            self.ac_msg.wormgear_direction = "Forward"
+            # self.ac_msg.horizontal_distance = self.left_arm.horizontal
             self.ac_msg.horizontal_distance = self.left_arm.horizontal
-            self.ac_msg.vertical_distance = self.left_arm.vertical
         elif "Retract" in self.left_arm.horizontal_action:
-            self.ac_msg.wormgear_direction = "Reverse"
-            self.ac_msg.horizontal_distance = self.left_arm.horizontal
-            self.ac_msg.vertical_distance = self.left_arm.vertical
+            self.ac_msg.horizontal_distance = self.left_arm.NO_ACTION
+            # self.ac_msg.vertical_distance = self.left_arm.vertical
         elif "Pause" in self.left_arm.horizontal_action:
-            self.ac_msg.wormgear_direction = "Pause"
             self.ac_msg.horizontal_distance = self.left_arm.horizontal
-            self.ac_msg.vertical_distance = self.left_arm.vertical
-        elif "None" in self.left_arm.horizontal_action:
-            pass
+            # self.ac_msg.vertical_distance = self.left_arm.vertical
         else:
             rospy.logerr_once("Invalid arm action.")
 
+        self.arm_control_pub.publish(self.ac_msg)
+
     def vertical_action(self):
         if "Raise" in self.left_arm.vertical_action:
-            self.ac_msg.wormgear_direction = "Pause"
-            self.ac_msg.horizontal_distance = self.left_arm.NO_ACTION
+            # self.ac_msg.horizontal_distance = self.left_arm.NO_ACTION
             self.ac_msg.vertical_distance = self.left_arm.vertical
         elif "Drop" in self.left_arm.vertical_action:
-            self.ac_msg.wormgear_direction = "Pause"
-            self.ac_msg.horizontal_distance = self.left_arm.NO_ACTION
+            # self.ac_msg.horizontal_distance = self.left_arm.NO_ACTION
             self.ac_msg.vertical_distance = self.left_arm.vertical
         elif "Pause" in self.left_arm.vertical_action:
-            self.ac_msg.wormgear_direction = "Pause"
-            self.ac_msg.horizontal_distance = self.left_arm.NO_ACTION
+            # self.ac_msg.horizontal_distance = self.left_arm.NO_ACTION
             self.ac_msg.vertical_distance = self.left_arm.vertical
-        elif "None" in self.left_arm.vertical_action:
-            pass
         else:
             rospy.logerr_once("Invalid arm action.")
+
+        self.arm_control_pub.publish(self.ac_msg)
 
     def arm_control(self):
         self.ac_msg.header.stamp = rospy.Time.now()
@@ -87,8 +81,6 @@ class Arm_Manager:
 
         self.vertical_action()
         self.horizontal_action()
-
-        self.arm_control_pub.publish(self.ac_msg)
 
     def start(self):
         while not rospy.is_shutdown():

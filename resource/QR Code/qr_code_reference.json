@@ -15,7 +15,6 @@
     "Mission": {
       "Junction": true,
       "Follow-up": true,
-      "EndBlock": false,
       "EndMission": false
     }
   },
@@ -35,7 +34,6 @@
     "Mission": {
       "Junction": true,
       "Follow-up": true,
-      "EndBlock": false,
       "EndMission": false
     }
   },
@@ -55,7 +53,25 @@
     "Mission": {
       "Junction": false,
       "Follow-up": false,
-      "EndBlock": false,
+      "EndMission": false
+    }
+  },
+  "drop_arm_vertically_sample": {
+    "Drive": {
+      "Direction": "Pause",
+      "Follow-up-Direction": "None",
+      "Wait": true,
+      "Delay": 5
+    },
+    "Arm": {
+      "Horizontal-Action": "None",
+      "Vertical-Action": "Drop",
+      "Horizontal": 0,
+      "Vertical": 100
+    },
+    "Mission": {
+      "Junction": false,
+      "Follow-up": false,
       "EndMission": false
     }
   },
@@ -69,13 +85,31 @@
     "Arm": {
       "Horizontal-Action": "Extend",
       "Vertical-Action": "None",
-      "Horizontal": 750,
+      "Horizontal": 500,
       "Vertical": 0
     },
     "Mission": {
       "Junction": false,
       "Follow-up": false,
-      "EndBlock": false,
+      "EndMission": false
+    }
+  },
+  "retract_arm_horizontally_sample": {
+    "Drive": {
+      "Direction": "Pause",
+      "Follow-up-Direction": "None",
+      "Wait": true,
+      "Delay": 5
+    },
+    "Arm": {
+      "Horizontal-Action": "Retract",
+      "Vertical-Action": "None",
+      "Horizontal": 0,
+      "Vertical": 100
+    },
+    "Mission": {
+      "Junction": false,
+      "Follow-up": false,
       "EndMission": false
     }
   },
@@ -115,8 +149,45 @@
     "Mission": {
       "Junction": false,
       "Follow-up": false,
-      "EndBlock": true,
       "EndMission": true
+    }
+  },
+  "forward_test_sample": {
+    "Drive": {
+      "Direction": "Forward",
+      "Follow-up-Direction": "None",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Horizontal-Action": "None",
+      "Vertical-Action": "None",
+      "Horizontal": 0,
+      "Vertical": 0
+    },
+    "Mission": {
+      "Junction": false,
+      "Follow-up": false,
+      "EndMission": false
+    }
+  },
+  "backward_test_sample": {
+    "Drive": {
+      "Direction": "Backward",
+      "Follow-up-Direction": "None",
+      "Wait": false,
+      "Delay": 0
+    },
+    "Arm": {
+      "Horizontal-Action": "None",
+      "Vertical-Action": "None",
+      "Horizontal": 0,
+      "Vertical": 0
+    },
+    "Mission": {
+      "Junction": false,
+      "Follow-up": false,
+      "EndMission": false
     }
   }
 }

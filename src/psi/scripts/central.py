@@ -49,7 +49,11 @@ class Central:
     def arm_mission_control(self):
         # Temporary loading of central mission data into a dict
         temp_central = json.loads(self.central_mission_data)
-        temp_arm = temp_central['Arm']
+        try:
+            temp_arm = temp_central['Arm']
+        except TypeError:
+            rospy.logwarn(
+                "Arm status might be an integer instead of useful information.")
         # Send parsed Arm message
         arm_ms_msg = MissionStatus()
         arm_ms_msg.header.stamp = rospy.Time.now()

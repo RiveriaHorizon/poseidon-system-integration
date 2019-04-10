@@ -19,9 +19,9 @@ class Drive_Manager:
 
         self.ji_msg = JoystickInput()
         self.joystick_input_pub = rospy.Publisher(
-            'drive/joystick_input', JoystickInput, queue_size=1)
+            '/psi/drive/joystick_input', JoystickInput, queue_size=1)
 
-        rospy.Subscriber('drive/cardinal_direction',
+        rospy.Subscriber('/psi/drive/cardinal_direction',
                          CardinalDirection, self.cardinal_direction_cb)
 
     def cardinal_direction_cb(self, data):
@@ -36,14 +36,14 @@ class Drive_Manager:
             # If speeds are negative, vary the position of the joystick
             # depending on left or right
             if self.cardinal_direction == "N":
-                self.y_input = 25
+                self.y_input = 90
                 self.x_input = 125
-            elif self.cardinal_direction == "NE":
-                self.y_input = 125 - 100 * math.cos(math.radians(25))
-                self.x_input = 125 + 100 * math.sin(math.radians(25))
             elif self.cardinal_direction == "NW":
-                self.y_input = 125 - 100 * math.cos(math.radians(25))
-                self.x_input = 125 - 100 * math.sin(math.radians(25))
+                self.y_input = 125 - 100 * math.cos(math.radians(35))
+                self.x_input = 125 - 100 * math.sin(math.radians(35))
+            elif self.cardinal_direction == "NE":
+                self.y_input = 125 - 100 * math.cos(math.radians(35))
+                self.x_input = 125 + 100 * math.sin(math.radians(35))
 
         elif "T" in self.cardinal_direction:
             # If speeds are at 0, set system to idle position
@@ -54,14 +54,14 @@ class Drive_Manager:
             # If speeds are positive, vary the position of the joystick
             # depending on left or right
             if self.cardinal_direction == "S":
-                self.y_input = 225
+                self.y_input = 195
                 self.x_input = 125
             elif self.cardinal_direction == "SE":
-                self.y_input = 125 + 100 * math.sin(math.radians(65))
-                self.x_input = 125 + 100 * math.cos(math.radians(65))
+                self.y_input = 125 + 100 * math.sin(math.radians(35))
+                self.x_input = 125 + 100 * math.cos(math.radians(35))
             elif self.cardinal_direction == "SW":
-                self.y_input = 125 + 100 * math.sin(math.radians(65))
-                self.x_input = 125 - 100 * math.cos(math.radians(65))
+                self.y_input = 125 + 100 * math.sin(math.radians(35))
+                self.x_input = 125 - 100 * math.cos(math.radians(35))
 
         elif "W" in self.cardinal_direction:
             self.y_input = 125
@@ -69,7 +69,7 @@ class Drive_Manager:
 
         elif "E" in self.cardinal_direction:
             self.y_input = 125
-            self.x_input = 15
+            self.x_input = 25
 
         else:
             # Default case to set the joystick to idle position

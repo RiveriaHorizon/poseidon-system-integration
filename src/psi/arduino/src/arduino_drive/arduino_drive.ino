@@ -10,7 +10,7 @@
 #include <sensor_msgs/Range.h>
 #include <psi/ArmControl.h>
 #include <psi/JoystickInput.h>
-#include "math.h"
+#include <math.h>
 
 // Imu sensor
 #define X_AXIS 0
@@ -228,7 +228,7 @@ void loop()
 
   static uint32_t prev_ms = millis();
 
-  if ((millis() - prev_ms) > 250)
+  if ((millis() - prev_ms) > 100)
   {
     mpu.update();
     imu_msg.header.stamp = nh.now();
