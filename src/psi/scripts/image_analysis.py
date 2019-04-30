@@ -93,13 +93,12 @@ class ImageAnalysis:
         black_extracted = cv2.bitwise_and(
             blurred_image, blurred_image, mask=mask_black_lower)
 
-        h, w, d = blurred_image.shape
-
         # find contours in the mask and initialize the current
         # (x, y) center of the ball
         cnts = cv2.findContours(mask_black.copy(), cv2.RETR_EXTERNAL,
                                 cv2.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
+
         h, w, d = blurred_image.shape
 
         if len(cnts) > 0:

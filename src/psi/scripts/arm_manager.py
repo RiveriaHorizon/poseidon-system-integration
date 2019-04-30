@@ -43,6 +43,8 @@ class Arm_Manager:
 
     def horizontal_action(self):
         # Vertical motion to not move is by sending the same distance over
+        # This should be changed in the future since the vertical motion of
+        # the arm is independant of arm type.
         if "Extend" in self.left_arm.horizontal_action:
             # self.ac_msg.horizontal_distance = self.left_arm.horizontal
             self.ac_msg.horizontal_distance = self.left_arm.horizontal
