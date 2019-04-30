@@ -6,12 +6,11 @@ cache:
 
 variables:
   ROS_PACKAGES_TO_INSTALL: "rosserial"
+  GIT_SUBMODULE_STRATEGY: "recursive"
 
 before_script:
   - git clone https://gitlab.com/VictorLamoine/ros_gitlab_ci.git
   - source ros_gitlab_ci/gitlab-ci.bash >/dev/null
-  - git submodule sync --recursive
-  - git submodule update --init --recursive
 
 catkin_make:
   stage: build
