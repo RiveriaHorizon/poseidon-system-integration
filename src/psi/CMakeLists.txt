@@ -189,7 +189,6 @@ catkin_install_python(PROGRAMS
   scripts/drive_manager.py
   scripts/image_analysis.py
   scripts/navigation.py
-  tests/drive_control_test.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
