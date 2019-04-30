@@ -16,11 +16,13 @@ before_script:
 catkin_make:
   stage: build
   script:
+    - rosdep install --from-paths src --ignore-src -r -y
     - catkin_make
 
 catkin tools:
   stage: build
   script:
+    - rosdep install --from-paths src --ignore-src -r -y
     - catkin build --summarize --no-status --force-color
 
 catkin_lint:
