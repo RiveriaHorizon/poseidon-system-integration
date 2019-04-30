@@ -61,3 +61,7 @@ src/rosserial
 src/imu_tools
 
 install/
+
+# Extra files
+.directory
+
