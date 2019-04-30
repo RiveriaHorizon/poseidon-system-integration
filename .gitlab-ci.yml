@@ -11,6 +11,7 @@ variables:
 before_script:
   - git clone https://gitlab.com/VictorLamoine/ros_gitlab_ci.git
   - source ros_gitlab_ci/gitlab-ci.bash >/dev/null
+  - rosdep install psi
 
 catkin_make:
   stage: build
