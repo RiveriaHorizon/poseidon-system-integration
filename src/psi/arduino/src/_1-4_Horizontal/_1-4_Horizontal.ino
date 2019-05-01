@@ -1,3 +1,5 @@
+  // Written by Nur Farzana
+
   #include "math.h"
   #include <Servo.h> //servo library
   

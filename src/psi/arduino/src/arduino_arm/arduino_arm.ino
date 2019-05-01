@@ -1,3 +1,6 @@
+// Arm control logic written by Nur Farzana
+// ROS integration by Cheng Yong Quan
+
 #include <Arduino.h>
 #include <math.h>
 #include <Servo.h> //Servo library
