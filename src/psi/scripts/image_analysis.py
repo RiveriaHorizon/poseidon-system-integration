@@ -30,6 +30,24 @@ class ImageAnalysis:
                          Image, self.qr_image_cb,
                          queue_size=1, buff_size=2**30)
 
+        self.unaltered_image_scaled_pub = rospy.Publisher(
+            "drive/unaltered_image_scaled", Image, queue_size=1)
+
+        self.blurred_image_pub = rospy.Publisher(
+            "drive/blurred_image", Image, queue_size=1)
+
+        self.mask_extracted_image_pub = rospy.Publisher(
+            "drive/mask_extracted_image", Image, queue_size=1)
+
+        self.binary_image_pub = rospy.Publisher(
+            "drive/binary_image", Image, queue_size=1)
+
+        self.qr_otsu_image_pub = rospy.Publisher(
+            "drive/qr_otsu_image", Image, queue_size=1)
+
+        self.qr_detected_image_pub = rospy.Publisher(
+            'drive/qr_detected_image', Image, queue_size=1)
+
         self.de_msg = DirectionError()
         self.direction_error_pub = rospy.Publisher(
             'drive/direction_error', DirectionError, queue_size=1)
@@ -91,7 +109,7 @@ class ImageAnalysis:
         mask_black = mask_black_higher + mask_black_lower
 
         black_extracted = cv2.bitwise_and(
-            blurred_image, blurred_image, mask=mask_black_lower)
+            blurred_image, blurred_image, mask=mask_black)
 
         # find contours in the mask and initialize the current
         # (x, y) center of the ball
@@ -113,11 +131,32 @@ class ImageAnalysis:
             self.de_msg.header.frame_id = "base_link"
             self.direction_error_pub.publish(self.de_msg)
 
-        cv2.imshow("Line Following Window",
-                   numpy.hstack([image, blurred_image, black_extracted]))
-        cv2.imshow("Binary Mask", mask_black)
+        # # Convert image to appropriate encoding for cv_bridge
+        black_extracted = cv2.cvtColor(black_extracted, cv2.COLOR_HSV2BGR)
 
-        cv2.waitKey(1)
+        try:
+            image = cv2.resize(image, (0, 0), fx=4, fy=4,
+                               interpolation=cv2.INTER_AREA)
+            self.unaltered_image_scaled_pub.publish(
+                self.bridge.cv2_to_imgmsg(image, "bgr8"))
+
+            blurred_image = cv2.resize(blurred_image, (0, 0), fx=4, fy=4,
+                                       interpolation=cv2.INTER_AREA)
+            self.blurred_image_pub.publish(
+                self.bridge.cv2_to_imgmsg(blurred_image, "bgr8"))
+
+            black_extracted = cv2.resize(black_extracted, (0, 0), fx=4, fy=4,
+                                         interpolation=cv2.INTER_AREA)
+
+            self.mask_extracted_image_pub.publish(
+                self.bridge.cv2_to_imgmsg(black_extracted, "bgr8"))
+
+            mask_black = cv2.resize(mask_black, (0, 0), fx=4, fy=4,
+                                    interpolation=cv2.INTER_AREA)
+            self.binary_image_pub.publish(
+                self.bridge.cv2_to_imgmsg(mask_black, "mono8"))
+        except CvBridgeError as e:
+            print(e)
 
     def qr_image_cb(self, data):
         # Grab the image from the image message and convert it to opencv format
@@ -131,7 +170,9 @@ class ImageAnalysis:
         # plt.show()
         ret3, th3 = cv2.threshold(
             blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        cv2.imshow("Quick Response Code", th3)
+        self.qr_otsu_image_pub.publish(
+            self.bridge.cv2_to_imgmsg(th3, "mono8"))
+
         # Get result from the incoming image publisher
         decoded_objects = pyzbar.decode(th3)
         for obj in decoded_objects:
@@ -163,9 +204,8 @@ class ImageAnalysis:
             for j in range(0, n):
                 cv2.line(image, hull[j], hull[(j+1) % n], (255, 0, 0), 3)
 
-            cv2.imshow("QRCode Image Window", image)
-
-        cv2.waitKey(1)
+            self.qr_detected_image_pub.publish(
+                self.bridge.cv2_to_imgmsg(image, "mono8"))
 
     def start(self):
         while not rospy.is_shutdown():

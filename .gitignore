@@ -64,4 +64,5 @@ install/
 
 # Extra files
 .directory
+web-server/AdminLTE/
 
