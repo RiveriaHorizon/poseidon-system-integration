@@ -56,7 +56,7 @@ mkdir catkin_ws
 # Clone the repository to the workspace
 git clone https://gitlab.com/riveriahorizon/poseidon-system-integration.git
 # Download package dependancies
-sudo apt install ros-melodic-web-server-video
+sudo apt install ros-melodic-web-video-server
 sudo apt install ros-melodic-rosbridge-suite
 sudo apt install ros-melodic-imu-tools
 sudo apt install ros-melodic-rosserial-arduino
@@ -115,6 +115,17 @@ Give an example
 ## Deployment
 
 `To be offloaded to Raspberry Pi, and will be updated once it reaches working stage.`
+
+To use the web user interface, edit the Nginx configuration file. An example configuration file is included in the web-server folder.
+
+```bash
+# Edit the nginx configuration file
+sudo vim /etc/nginx/sites-enabled/default
+# Locate the following line
+root /var/www/html # Change this line to point to the path of the web server
+# Then, restart the nginx service
+sudo systemctl restart nginx
+```
 
 ## Contributing
 
