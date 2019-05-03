@@ -3,7 +3,7 @@
 import json
 import rospy
 from psi.msg import ArmControl
-from psi.msg import ArmFeedback
+from psi.msg import ArmHorizontalFeedback
 from psi.msg import MissionStatus
 
 
@@ -23,7 +23,8 @@ class Arm_Manager:
         rospy.Subscriber("arm/mission_status", MissionStatus,
                          self.mission_status_cb)
 
-        rospy.Subscriber("arm/feedback", ArmFeedback, self.arm_feedback_cb)
+        rospy.Subscriber("sensors/arm/horizontal",
+                         ArmHorizontalFeedback, self.arm_feedback_cb)
 
     def mission_status_cb(self, data):
         self.mission_data = data.mission_status

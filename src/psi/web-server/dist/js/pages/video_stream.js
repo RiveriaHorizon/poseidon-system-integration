@@ -1,4 +1,3 @@
-var publishImmediately = true;
 var robot_IP;
 var manager;
 var ros;

@@ -57,6 +57,32 @@ class ImageAnalysis:
         self.mission_status_pub = rospy.Publisher(
             'central/mission_status', MissionStatus, queue_size=1)
 
+    def plot_3d_graph(self, image):
+        # Image input needs to be in HSV color space.
+        # TODO: Change it to dynamic conversion of colorspace.
+        r, g, b = cv2.split(image)
+        hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+        h, s, v = cv2.split(hsv)
+        fig = plt.figure()
+        axis = fig.add_subplot(1, 1, 1, projection="3d")
+        pixel_colors = image.reshape(
+            (numpy.shape(image)[0]*numpy.shape(image)[1], 3))
+        norm = colors.Normalize(vmin=-1., vmax=1.)
+        norm.autoscale(pixel_colors)
+        pixel_colors = norm(pixel_colors).tolist()
+        axis.scatter(h.flatten(), s.flatten(), v.flatten(),
+                     facecolors=pixel_colors, marker=".")
+        axis.set_xlabel("Hue")
+        axis.set_ylabel("Saturation")
+        axis.set_zlabel("Value")
+        plt.show()
+
+    def plot_histogram(self, image):
+        plt.hist(image.ravel(), 256, [0, 256])
+        plt.xlabel('Bins')
+        plt.ylabel('Pixel Count')
+        plt.show()
+
     def line_image_cb(self, data):
         # Grab the image from the image message and convert it to opencv format
         image = self.bridge.imgmsg_to_cv2(
@@ -69,24 +95,10 @@ class ImageAnalysis:
                            interpolation=cv2.INTER_AREA)
         blurred_image = cv2.GaussianBlur(image, (11, 11), 0)
 
-        # r, g, b = cv2.split(image)
-        # hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-        # h, s, v = cv2.split(hsv)
-        # fig = plt.figure()
-        # axis = fig.add_subplot(1, 1, 1, projection="3d")
-        # pixel_colors = image.reshape(
-        #     (numpy.shape(image)[0]*numpy.shape(image)[1], 3))
-        # norm = colors.Normalize(vmin=-1., vmax=1.)
-        # norm.autoscale(pixel_colors)
-        # pixel_colors = norm(pixel_colors).tolist()
-        # axis.scatter(h.flatten(), s.flatten(), v.flatten(),
-        #              facecolors=pixel_colors, marker=".")
-        # axis.set_xlabel("Hue")
-        # axis.set_ylabel("Saturation")
-        # axis.set_zlabel("Value")
-        # plt.show()
-
         hsv = cv2.cvtColor(blurred_image, cv2.COLOR_BGR2HSV)
+
+        # Uncomment to display 3d plot of image
+        # self.plot_3d_graph(image)
 
         # Construct a mask for the color "black", then perform a
         # series of erosions and dilations to remove any small blobs
@@ -131,7 +143,7 @@ class ImageAnalysis:
             self.de_msg.header.frame_id = "base_link"
             self.direction_error_pub.publish(self.de_msg)
 
-        # # Convert image to appropriate encoding for cv_bridge
+        # Convert image to appropriate encoding for cv_bridge
         black_extracted = cv2.cvtColor(black_extracted, cv2.COLOR_HSV2BGR)
 
         try:
@@ -164,10 +176,10 @@ class ImageAnalysis:
             data, desired_encoding='bgr8')
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(image, (5, 5), 0)
-        # plt.hist(image.ravel(), 256, [0, 256])
-        # plt.xlabel('Bins')
-        # plt.ylabel('Pixel Count')
-        # plt.show()
+
+        # Uncomment to plot histogram
+        # self.plot_histogram(image)
+
         ret3, th3 = cv2.threshold(
             blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         self.qr_otsu_image_pub.publish(
