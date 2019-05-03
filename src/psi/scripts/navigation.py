@@ -13,48 +13,6 @@ from psi.msg import MissionStatus
 
 
 class Navigation:
-    def __init__(self):
-        rospy.init_node('navigation', anonymous=False)
-        self.rate = rospy.Rate(10)
-
-        self.status_mission_data = ""
-        self.prev_status_mission_data = ""
-        self.junction = False
-        self.follow_up = False
-        self.end_block = False
-        self.end_mission = False
-        self.water_mission = False
-
-        self.drive_mission_data = ""
-        self.prev_drive_mission_data = ""
-        self.direction = ""
-        self.follow_up_direction = ""
-        self.wait = False
-        self.delay = 0.0
-        self.direction_error = 0.0
-        self.prev_direction_error = 0.0
-        self.cardinal_direction = ""
-
-        self.orientation_z = 0.0
-        self.prev_orientation_z = 0.0
-
-        self.range = 0
-
-        self.cd_msg = CardinalDirection()
-        self.cardinal_direction_pub = rospy.Publisher(
-            'drive/cardinal_direction', CardinalDirection, queue_size=1)
-
-        rospy.Subscriber('status/mission_status', MissionStatus,
-                         self.status_ms_cb)
-
-        rospy.Subscriber('drive/mission_status', MissionStatus,
-                         self.drive_ms_cb)
-
-        rospy.Subscriber('drive/direction_error', DirectionError,
-                         self.drive_turn_control_cb)
-
-        rospy.Subscriber('sensors/imu', Imu, self.imu_cb)
-
     def drive_ms_cb(self, data):
         self.drive_mission_data = data.mission_status
         if self.drive_mission_data != self.prev_drive_mission_data:
@@ -216,7 +174,6 @@ class Navigation:
                             # Recalculates orientation in the while loop
                             delta_orientation = abs(
                                 self.orientation_z - self.prev_orientation_z)
-                            print(delta_orientation)
                             # Publish message as long as the desired heading hasn't been reached
                             self.cd_msg.cardinal_direction = self.cardinal_direction
                             self.cardinal_direction_pub.publish(self.cd_msg)
@@ -264,8 +221,48 @@ class Navigation:
             self.end_mission = temp_mission_data['EndMission']
 
     def start(self):
-        while not rospy.is_shutdown():
-            rospy.sleep(1)
+        rospy.init_node('navigation', anonymous=False)
+        self.rate = rospy.Rate(10)
+
+        self.status_mission_data = ""
+        self.prev_status_mission_data = ""
+        self.junction = False
+        self.follow_up = False
+        self.end_block = False
+        self.end_mission = False
+        self.water_mission = False
+
+        self.drive_mission_data = ""
+        self.prev_drive_mission_data = ""
+        self.direction = ""
+        self.follow_up_direction = ""
+        self.wait = False
+        self.delay = 0.0
+        self.direction_error = 0.0
+        self.prev_direction_error = 0.0
+        self.cardinal_direction = ""
+
+        self.orientation_z = 0.0
+        self.prev_orientation_z = 0.0
+
+        self.range = 0
+
+        self.cd_msg = CardinalDirection()
+        self.cardinal_direction_pub = rospy.Publisher(
+            'drive/cardinal_direction', CardinalDirection, queue_size=1)
+
+        rospy.Subscriber('status/mission_status', MissionStatus,
+                         self.status_ms_cb)
+
+        rospy.Subscriber('drive/mission_status', MissionStatus,
+                         self.drive_ms_cb)
+
+        rospy.Subscriber('drive/direction_error', DirectionError,
+                         self.drive_turn_control_cb)
+
+        rospy.Subscriber('sensors/imu', Imu, self.imu_cb)
+
+        rospy.spin()
 
 
 if __name__ == "__main__":

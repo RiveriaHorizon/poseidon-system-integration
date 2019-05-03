@@ -6,21 +6,6 @@ from psi.msg import MissionStatus
 
 
 class Central:
-    def __init__(self):
-        rospy.init_node('central', anonymous=False)
-
-        self.central_mission_data = ""
-        self.prev_central_mission_data = ""
-
-        rospy.Subscriber('central/mission_status', MissionStatus,
-                         self.central_mission_cb, queue_size=1)
-        self.arm_mission_pub = rospy.Publisher(
-            'arm/mission_status', MissionStatus, queue_size=1)
-        self.drive_mission_pub = rospy.Publisher(
-            'drive/mission_status', MissionStatus, queue_size=1)
-        self.status_mission_pub = rospy.Publisher(
-            'status/mission_status', MissionStatus, queue_size=1)
-
     def central_mission_cb(self, data):
         self.central_mission_data = data.mission_status
         if self.central_mission_data != self.prev_central_mission_data:
@@ -77,8 +62,21 @@ class Central:
         self.status_mission_pub.publish(status_ms_msg)
 
     def start(self):
-        while not rospy.is_shutdown():
-            rospy.sleep(1)
+        rospy.init_node('central', anonymous=False)
+
+        self.central_mission_data = ""
+        self.prev_central_mission_data = ""
+
+        rospy.Subscriber('central/mission_status', MissionStatus,
+                         self.central_mission_cb, queue_size=1)
+        self.arm_mission_pub = rospy.Publisher(
+            'arm/mission_status', MissionStatus, queue_size=1)
+        self.drive_mission_pub = rospy.Publisher(
+            'drive/mission_status', MissionStatus, queue_size=1)
+        self.status_mission_pub = rospy.Publisher(
+            'status/mission_status', MissionStatus, queue_size=1)
+
+        rospy.spin()
 
 
 if __name__ == "__main__":

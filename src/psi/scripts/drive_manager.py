@@ -8,22 +8,6 @@ from psi.msg import CardinalDirection
 
 
 class Drive_Manager:
-    def __init__(self):
-        rospy.init_node('drive_manager', anonymous=False)
-
-        self.cardinal_direction = ""
-        self.prev_cardinal_direction = ""
-        self.location = ""
-        self.x_input = 0
-        self.y_input = 0
-
-        self.ji_msg = JoystickInput()
-        self.joystick_input_pub = rospy.Publisher(
-            '/psi/drive/joystick_input', JoystickInput, queue_size=1)
-
-        rospy.Subscriber('/psi/drive/cardinal_direction',
-                         CardinalDirection, self.cardinal_direction_cb)
-
     def cardinal_direction_cb(self, data):
         self.cardinal_direction = data.cardinal_direction
         self.map_cardinal_to_joystick_input()
@@ -84,12 +68,22 @@ class Drive_Manager:
         self.joystick_input_pub.publish(self.ji_msg)
 
     def start(self):
-        """
-        TODO: Complete mapping of joystick input method plus finish insertion
-        of argument
-        """
-        while not rospy.is_shutdown():
-            rospy.sleep(1)
+        rospy.init_node('drive_manager', anonymous=False)
+
+        self.cardinal_direction = ""
+        self.prev_cardinal_direction = ""
+        self.location = ""
+        self.x_input = 0
+        self.y_input = 0
+
+        self.ji_msg = JoystickInput()
+        self.joystick_input_pub = rospy.Publisher(
+            '/psi/drive/joystick_input', JoystickInput, queue_size=1)
+
+        rospy.Subscriber('/psi/drive/cardinal_direction',
+                         CardinalDirection, self.cardinal_direction_cb)
+
+        rospy.spin()
 
 
 if __name__ == "__main__":

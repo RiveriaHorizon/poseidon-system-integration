@@ -8,24 +8,6 @@ from psi.msg import MissionStatus
 
 
 class Arm_Manager:
-    def __init__(self):
-        rospy.init_node('arm_manager', anonymous=False)
-
-        self.mission_data = ""
-        self.prev_mission_data = ""
-
-        self.left_arm = self._Arm("left")
-
-        self.ac_msg = ArmControl()
-        self.arm_control_pub = rospy.Publisher(
-            'arm/control', ArmControl, queue_size=1)
-
-        rospy.Subscriber("arm/mission_status", MissionStatus,
-                         self.mission_status_cb)
-
-        rospy.Subscriber("sensors/arm/horizontal",
-                         ArmHorizontalFeedback, self.arm_feedback_cb)
-
     def mission_status_cb(self, data):
         self.mission_data = data.mission_status
         if self.mission_data != self.prev_mission_data:
@@ -86,8 +68,24 @@ class Arm_Manager:
         self.horizontal_action()
 
     def start(self):
-        while not rospy.is_shutdown():
-            rospy.sleep(1)
+        rospy.init_node('arm_manager', anonymous=False)
+
+        self.mission_data = ""
+        self.prev_mission_data = ""
+
+        self.left_arm = self._Arm("left")
+
+        self.ac_msg = ArmControl()
+        self.arm_control_pub = rospy.Publisher(
+            'arm/control', ArmControl, queue_size=1)
+
+        rospy.Subscriber("arm/mission_status", MissionStatus,
+                         self.mission_status_cb)
+
+        rospy.Subscriber("sensors/arm/horizontal",
+                         ArmHorizontalFeedback, self.arm_feedback_cb)
+
+        rospy.spin()
 
     class _Arm:
         def __init__(self, arm_type):

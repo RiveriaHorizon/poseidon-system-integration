@@ -18,45 +18,6 @@ from matplotlib import colors
 
 
 class ImageAnalysis:
-    def __init__(self):
-        rospy.init_node('image_analysis', anonymous=False)
-
-        self.bridge = CvBridge()
-        rospy.Subscriber('usb_cam/image_raw',
-                         Image, self.line_image_cb,
-                         queue_size=1, buff_size=2**30)
-
-        rospy.Subscriber('usb_cam/image_raw',
-                         Image, self.qr_image_cb,
-                         queue_size=1, buff_size=2**30)
-
-        self.unaltered_image_scaled_pub = rospy.Publisher(
-            "drive/unaltered_image_scaled", Image, queue_size=1)
-
-        self.blurred_image_pub = rospy.Publisher(
-            "drive/blurred_image", Image, queue_size=1)
-
-        self.mask_extracted_image_pub = rospy.Publisher(
-            "drive/mask_extracted_image", Image, queue_size=1)
-
-        self.binary_image_pub = rospy.Publisher(
-            "drive/binary_image", Image, queue_size=1)
-
-        self.qr_otsu_image_pub = rospy.Publisher(
-            "drive/qr_otsu_image", Image, queue_size=1)
-
-        self.qr_detected_image_pub = rospy.Publisher(
-            'drive/qr_detected_image', Image, queue_size=1)
-
-        self.de_msg = DirectionError()
-        self.direction_error_pub = rospy.Publisher(
-            'drive/direction_error', DirectionError, queue_size=1)
-
-        self.mission_status = ""
-        self.ms_msg = MissionStatus()
-        self.mission_status_pub = rospy.Publisher(
-            'central/mission_status', MissionStatus, queue_size=1)
-
     def plot_3d_graph(self, image):
         # Image input needs to be in HSV color space.
         # TODO: Change it to dynamic conversion of colorspace.
@@ -220,13 +181,44 @@ class ImageAnalysis:
                 self.bridge.cv2_to_imgmsg(image, "mono8"))
 
     def start(self):
-        while not rospy.is_shutdown():
-            rospy.sleep(1)
+        rospy.init_node('image_analysis', anonymous=False)
+
+        self.bridge = CvBridge()
+        rospy.Subscriber('usb_cam/image_raw',
+                         Image, self.line_image_cb,
+                         queue_size=1, buff_size=2**30)
+
+        rospy.Subscriber('usb_cam/image_raw',
+                         Image, self.qr_image_cb,
+                         queue_size=1, buff_size=2**30)
+
+        self.unaltered_image_scaled_pub = rospy.Publisher(
+            "drive/unaltered_image_scaled", Image, queue_size=1)
+        self.blurred_image_pub = rospy.Publisher(
+            "drive/blurred_image", Image, queue_size=1)
+        self.mask_extracted_image_pub = rospy.Publisher(
+            "drive/mask_extracted_image", Image, queue_size=1)
+        self.binary_image_pub = rospy.Publisher(
+            "drive/binary_image", Image, queue_size=1)
+        self.qr_otsu_image_pub = rospy.Publisher(
+            "drive/qr_otsu_image", Image, queue_size=1)
+        self.qr_detected_image_pub = rospy.Publisher(
+            'drive/qr_detected_image', Image, queue_size=1)
+
+        self.de_msg = DirectionError()
+        self.direction_error_pub = rospy.Publisher(
+            'drive/direction_error', DirectionError, queue_size=1)
+
+        self.mission_status = ""
+        self.ms_msg = MissionStatus()
+        self.mission_status_pub = rospy.Publisher(
+            'central/mission_status', MissionStatus, queue_size=1)
 
 
 if __name__ == "__main__":
     try:
         ia = ImageAnalysis()
         ia.start()
+        rospy.spin()
     except rospy.ROSInterruptException:
         pass
