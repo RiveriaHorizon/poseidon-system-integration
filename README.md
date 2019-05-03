@@ -56,14 +56,21 @@ mkdir catkin_ws
 # Clone the repository to the workspace
 git clone https://gitlab.com/riveriahorizon/poseidon-system-integration.git
 # Download package dependancies
+sudo apt install ros-melodic-web-server-video
+sudo apt install ros-melodic-rosbridge-suite
 sudo apt install ros-melodic-imu-tools
 sudo apt install ros-melodic-rosserial-arduino
 sudo apt install ros-melodic-rosserial
+sudo apt install ros-melodic-range-sensor-layer
+sudo apt install ros-melodic-usb-cam
+sudo apt install nginx
 ```
 
 #### Building the PSI package
 
 ```bash
+# Install relevant dependancies
+rosdep install --from-paths src --ignore-src -r -y
 # Run the catkin_make command
 catkin_make
 # Source the setup file each time the catkin_make command is invoked
@@ -75,8 +82,8 @@ source devel/setup.bash
 ```bash
 # Install pyzbar
 pip install pyzbar
-# QR code generator
-pip install qrcode[pil]
+# Install imutils
+pip install imutils
 ```
 
 #### Launching the PSI package
