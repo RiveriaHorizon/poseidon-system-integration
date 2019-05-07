@@ -1,4 +1,8 @@
 {
     "python.pythonPath": "/usr/bin/python",
-    "python.linting.pylintEnabled": true
+    "python.linting.pylintEnabled": true,
+    "python.autoComplete.extraPaths": [
+        "/home/riveria/CodeProjects/ROS/poseidon-system-integration/devel/lib/python2.7/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ]
 }

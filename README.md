@@ -127,6 +127,22 @@ root /var/www/html # Change this line to point to the path of the web server
 sudo systemctl restart nginx
 ```
 
+If you are getting an unexpected mutex lock error with the usb_cam package, follow the following steps to try and rectify the error.
+
+```bash
+# cd to your workspace
+cd poseidon-system-integration
+# Clone the submodule to your workspace
+git -C src clone https://github.com/ros-perception/image_pipeline.git
+# Checkout the bugfix branch
+git -C src/image_pipeline fetch origin pull/343/head:bugfix
+git -C src/image_pipeline checkout bugfix
+# Make the workspace, remember to source the setup.bash after you're done
+catkin_make
+
+# https://github.com/ros-perception/image_pipeline/issues/201
+```
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
